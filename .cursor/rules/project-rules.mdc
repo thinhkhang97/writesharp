@@ -1,0 +1,18 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Rule 1: Build nice components—smooth UI/UX (Tailwind, <300ms animations), prioritize performance (memo, lazy-load). 
+
+Rule 2: Prefer SSR—use getServerSideProps for data (drafts, feedback), minimal client fetches.  
+
+Rule 3: Separate logic/UI—UI in components/, logic in lib/ (hooks, utils), no inline mess.  
+
+Rule 4: Use Supabase server client—lib/supabase.js for queries, pass props to UI.
+
+Rule 5: Keep Components Light: Cap components at ~50-100 lines—split if longer, focus on one job per component
+
+Rule 6: Prefer using Shadcn ui components, but make those components suitable to the application
+
+Rule 7: Don't create new icon svg if it's exist in lucide-react
