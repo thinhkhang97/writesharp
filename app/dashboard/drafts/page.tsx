@@ -2,29 +2,28 @@ import { redirect } from "next/navigation";
 
 import DraftHeader from "@/components/draft/DraftHeader";
 import DraftList from "@/components/draft/DraftList";
-import { getDraftsByUserId } from "@/lib/draft-service";
 import { createClient } from "@/utils/supabase/server";
+import { getDraftsByUserId } from "./actions";
 
 export default async function DraftsPage() {
   // Initialize Supabase client
   const supabase = await createClient();
-  // Get session
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
 
-  // If no session, redirect to login
-  if (!session) {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
     redirect("/auth/login");
   }
 
   // Get user drafts
-  const userId = session.user.id;
+  const userId = user.id;
   const drafts = await getDraftsByUserId(userId);
 
   return (
     <div className="container mx-auto py-8">
-      <DraftHeader />
+      <DraftHeader userId={userId} />
       <DraftList initialDrafts={drafts} userId={userId} />
     </div>
   );

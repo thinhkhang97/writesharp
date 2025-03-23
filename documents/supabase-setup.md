@@ -51,6 +51,20 @@ The migration sets up Row Level Security (RLS) with the following policies:
 - Users can only update their own drafts
 - Users can only delete their own drafts
 
+### Server-Side Actions
+
+The RLS policies are configured to allow both:
+
+1. Client-side operations where the authenticated user's ID must match the user_id field
+2. Server-side operations using the service role for server actions
+
+For server-side actions, we use Next.js server actions in the `app/dashboard/drafts/actions.ts` file. This ensures:
+
+1. Data validation happens on the server
+2. Security checks are properly enforced
+3. Authentication is handled consistently
+4. The client never needs to directly handle sensitive operations
+
 ## Automatic Timestamps
 
 The migration includes a trigger to automatically update the `updated_at` timestamp whenever a draft is modified.
@@ -59,7 +73,9 @@ The migration includes a trigger to automatically update the `updated_at` timest
 
 The Draft Management system is integrated with the app through:
 
-1. Server-side API functions in `lib/draft-service.ts`
+1. Server-side functions and actions
+   - API functions in `lib/draft-service.ts`
+   - Server actions in `app/dashboard/drafts/actions.ts`
 2. UI components in `components/draft/`
 3. Pages in `app/dashboard/drafts/`
 

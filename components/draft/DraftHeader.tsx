@@ -5,10 +5,10 @@ import { useRouter } from "next/navigation";
 import { PlusCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { createDraft } from "@/lib/draft-service";
 import { toast } from "sonner";
+import { createDraft } from "@/app/dashboard/drafts/actions";
 
-export default function DraftHeader() {
+export default function DraftHeader({ userId }: { userId: string }) {
   const router = useRouter();
   const [isCreating, setIsCreating] = useState(false);
 
@@ -16,21 +16,16 @@ export default function DraftHeader() {
     try {
       setIsCreating(true);
 
-      // Get user session from client-side
-      const res = await fetch("/api/auth/session");
-      const { userId } = await res.json();
-
       if (!userId) {
         toast.error("You must be logged in to create a draft.");
         return;
       }
 
-      // Create new draft
+      // Create new draft using server action
       const draft = await createDraft(userId);
 
-      // Refresh the page
+      // Navigate to the new draft
       router.push(`/dashboard/drafts/${draft.id}`);
-      router.refresh();
 
       toast.success("New draft created!");
     } catch (error) {

@@ -1,27 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Save } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import {
-  getDraftById,
-  updateDraft,
-  updateDraftStatus,
-} from "@/lib/draft-service";
+import { getDraftById, updateDraft, updateDraftStatus } from "../../actions";
 
-interface DraftEditPageProps {
-  params: {
-    id: string;
-  };
-}
-
-export default function DraftEditPage({ params }: DraftEditPageProps) {
+export default function DraftEditPage() {
   const router = useRouter();
+  const { id } = useParams();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [purpose, setPurpose] = useState("");
@@ -42,7 +33,7 @@ export default function DraftEditPage({ params }: DraftEditPageProps) {
     async function fetchDraft() {
       try {
         setIsLoading(true);
-        const draftData = await getDraftById(params.id);
+        const draftData = await getDraftById(id as string);
 
         if (!draftData) {
           toast.error("Draft not found");
@@ -75,7 +66,7 @@ export default function DraftEditPage({ params }: DraftEditPageProps) {
     }
 
     fetchDraft();
-  }, [params.id, router]);
+  }, [id, router]);
 
   const handleAddIdea = () => {
     if (!newIdea.trim()) return;
@@ -100,7 +91,7 @@ export default function DraftEditPage({ params }: DraftEditPageProps) {
     try {
       setIsSaving(true);
 
-      await updateDraft(params.id, {
+      await updateDraft(id as string, {
         title,
         content,
         foundation: {
@@ -113,7 +104,7 @@ export default function DraftEditPage({ params }: DraftEditPageProps) {
       });
 
       toast.success("Draft saved successfully!");
-      router.push(`/dashboard/drafts/${params.id}`);
+      router.push(`/dashboard/drafts/${id}`);
     } catch (error) {
       console.error("Error saving draft:", error);
       toast.error("Failed to save draft");
@@ -127,7 +118,7 @@ export default function DraftEditPage({ params }: DraftEditPageProps) {
   ) => {
     try {
       setStatus(newStatus);
-      await updateDraftStatus(params.id, newStatus);
+      await updateDraftStatus(id as string, newStatus);
       toast.success(`Draft status changed to ${newStatus}`);
     } catch (error) {
       console.error("Error updating status:", error);
@@ -147,7 +138,7 @@ export default function DraftEditPage({ params }: DraftEditPageProps) {
     <div className="container mx-auto py-8">
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link href={`/dashboard/drafts/${params.id}`}>
+          <Link href={`/dashboard/drafts/${id}`}>
             <Button
               variant="ghost"
               size="sm"

@@ -1,10 +1,53 @@
-import { supabase } from './supabase'
-import { Draft } from './types'
+'use server'
+
+import { createClient } from '@/utils/supabase/server'
+import { Draft } from '@/lib/types'
+import { revalidatePath } from 'next/cache'
+
+/**
+ * Creates a new draft (server action)
+ */
+export async function createDraft(userId: string): Promise<Draft> {
+  // Initialize authenticated Supabase client
+  const supabase = await createClient()
+
+  const now = new Date().toISOString()
+  const defaultTitle = `Untitled - ${new Date().toLocaleDateString()}`
+  
+  const newDraft = {
+    user_id: userId,
+    title: defaultTitle,
+    content: '',
+    foundation: { purpose: '', audience: '', topic: '' },
+    ideas: [],
+    status: 'In Progress',
+    created_at: now,
+    updated_at: now
+  }
+
+  const { data, error } = await supabase
+    .from('drafts')
+    .insert([newDraft])
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Error creating draft:', error)
+    throw error
+  }
+
+  // Revalidate drafts page
+  revalidatePath('/dashboard/drafts')
+  
+  return data
+}
 
 /**
  * Fetches all drafts for a user
  */
 export async function getDraftsByUserId(userId: string): Promise<Draft[]> {
+  const supabase = await createClient()
+
   const { data, error } = await supabase
     .from('drafts')
     .select('*')
@@ -23,6 +66,7 @@ export async function getDraftsByUserId(userId: string): Promise<Draft[]> {
  * Fetches a single draft by ID
  */
 export async function getDraftById(draftId: string): Promise<Draft | null> {
+  const supabase = await createClient()
   const { data, error } = await supabase
     .from('drafts')
     .select('*')
@@ -37,42 +81,8 @@ export async function getDraftById(draftId: string): Promise<Draft | null> {
   return data
 }
 
-/**
- * Creates a new draft
- */
-export async function createDraft(userId: string, data?: Partial<Draft>): Promise<Draft> {
-  const now = new Date().toISOString()
-  const defaultTitle = `Untitled - ${new Date().toLocaleDateString()}`
-  
-  const newDraft = {
-    user_id: userId,
-    title: data?.title || defaultTitle,
-    content: data?.content || '',
-    foundation: data?.foundation || { purpose: '', audience: '', topic: '' },
-    ideas: data?.ideas || [],
-    status: 'In Progress',
-    created_at: now,
-    updated_at: now
-  }
-
-  const { data: createdDraft, error } = await supabase
-    .from('drafts')
-    .insert([newDraft])
-    .select()
-    .single()
-
-  if (error) {
-    console.error('Error creating draft:', error)
-    throw error
-  }
-
-  return createdDraft
-}
-
-/**
- * Updates an existing draft
- */
 export async function updateDraft(draftId: string, data: Partial<Draft>): Promise<Draft> {
+  const supabase = await createClient()
   const { data: updatedDraft, error } = await supabase
     .from('drafts')
     .update({
@@ -91,10 +101,19 @@ export async function updateDraft(draftId: string, data: Partial<Draft>): Promis
   return updatedDraft
 }
 
+
+/**
+ * Updates draft status
+ */
+export async function updateDraftStatus(draftId: string, status: 'In Progress' | 'Feedback Ready'): Promise<Draft> {
+  return updateDraft(draftId, { status })
+} 
+
 /**
  * Deletes a draft
  */
 export async function deleteDraft(draftId: string): Promise<void> {
+  const supabase = await createClient()
   const { error } = await supabase
     .from('drafts')
     .delete()
@@ -105,10 +124,3 @@ export async function deleteDraft(draftId: string): Promise<void> {
     throw error
   }
 }
-
-/**
- * Updates draft status
- */
-export async function updateDraftStatus(draftId: string, status: 'In Progress' | 'Feedback Ready'): Promise<Draft> {
-  return updateDraft(draftId, { status })
-} 

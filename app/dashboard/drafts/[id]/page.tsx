@@ -1,10 +1,9 @@
-import { notFound, redirect } from "next/navigation";
-import { createBrowserClient } from "@supabase/ssr";
-import Link from "next/link";
 import { ArrowLeft, Edit } from "lucide-react";
+import Link from "next/link";
+import { notFound, redirect } from "next/navigation";
 
-import { getDraftById } from "@/lib/draft-service";
 import { Button } from "@/components/ui/button";
+import { getDraftById } from "../actions";
 
 interface DraftDetailPageProps {
   params: {
@@ -15,34 +14,13 @@ interface DraftDetailPageProps {
 export default async function DraftDetailPage({
   params,
 }: DraftDetailPageProps) {
-  // Initialize Supabase client
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-
-  // Get session
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  // If no session, redirect to login
-  if (!session) {
-    redirect("/auth/login");
-  }
-
-  // Get draft by ID
+  const { id } = await params;
   try {
-    const draft = await getDraftById(params.id);
+    const draft = await getDraftById(id);
 
     // If draft not found, 404
     if (!draft) {
       notFound();
-    }
-
-    // If draft doesn't belong to current user, redirect
-    if (draft.user_id !== session.user.id) {
-      redirect("/dashboard/drafts");
     }
 
     return (
