@@ -26,26 +26,158 @@ export function useWritingCheck(
     }
   }, []);
 
+  const formatContentWithLineBreaks = (text: string) => {
+    return text.replace(/\n/g, "<br>") || "<br>";
+  };
+
   // When value changes, update the display
   useEffect(() => {
     if (contentDivRef.current) {
       // Don't update if user is currently editing
       if (document.activeElement !== contentDivRef.current) {
-        if (suggestions.length > 0) {
-          updateHighlightedContent();
-        } else if (
+        if (
           contentDivRef.current.innerHTML !== formatContentWithLineBreaks(value)
         ) {
-          // If no suggestions, update the text with proper line breaks
+          // Update the text with proper line breaks
           contentDivRef.current.innerHTML = formatContentWithLineBreaks(value);
         }
       }
     }
-  }, [value, suggestions]);
+  }, [value]);
+
+  // Handle input in the contentEditable div
+  const handleContentInput = (e: React.FormEvent<HTMLDivElement>) => {
+    // Get the current HTML content and convert <br> tags back to newlines
+    const target = e.target as HTMLDivElement;
+    const htmlContent = target.innerHTML;
+    const plainText = htmlContent
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<div>/gi, "\n")
+      .replace(/<\/div>/gi, "")
+      .replace(/&nbsp;/gi, " ");
+
+    // Use DOMParser to convert HTML entities
+    const parser = new DOMParser();
+    const decodedText =
+      parser.parseFromString(plainText, "text/html").body.textContent || "";
+
+    // When content changes, clear suggestions since positions will be invalid
+    if (suggestions.length > 0) {
+      setSuggestions([]);
+      setActiveSuggestion(null);
+    }
+
+    // Update the value with the new content
+    onChange(decodedText);
+  };
+
+  // Hover handlers
+  const handleSuggestionHover = useCallback((e: MouseEvent) => {
+    const target = e.target as HTMLElement;
+    const suggestionData = target.getAttribute("data-suggestion");
+
+    if (suggestionData) {
+      try {
+        const suggestion = JSON.parse(
+          decodeURIComponent(suggestionData)
+        ) as WritingSuggestion;
+
+        // Calculate tooltip position
+        const rect = target.getBoundingClientRect();
+
+        // Estimate tooltip height based on content
+        const estimatedHeight = 150;
+
+        // Check if there's enough space above
+        let top = rect.top - 10;
+
+        // If tooltip would go off the top of the viewport, position it below instead
+        if (top - estimatedHeight < 0) {
+          top = rect.bottom + 10;
+
+          // Set class for tooltip below
+          setTimeout(() => {
+            const tooltip = document.querySelector(".suggestion-tooltip");
+            if (tooltip) {
+              tooltip.classList.add("tooltip-below");
+              tooltip.classList.remove("tooltip-above");
+            }
+          }, 0);
+        } else {
+          // Set class for tooltip above
+          setTimeout(() => {
+            const tooltip = document.querySelector(".suggestion-tooltip");
+            if (tooltip) {
+              tooltip.classList.add("tooltip-above");
+              tooltip.classList.remove("tooltip-below");
+            }
+          }, 0);
+        }
+
+        // Ensure the tooltip stays within the viewport horizontally
+        let left = Math.max(10, rect.left);
+        if (left + 300 > window.innerWidth) {
+          left = window.innerWidth - 310;
+        }
+
+        // Position the tooltip
+        setTooltipPosition({
+          top: top,
+          left: left,
+        });
+
+        setActiveSuggestion(suggestion);
+      } catch (error) {
+        console.error("Error parsing suggestion data:", error);
+      }
+    }
+  }, []);
+
+  const handleSuggestionLeave = useCallback((e: MouseEvent) => {
+    const relatedTarget = e.relatedTarget as HTMLElement;
+
+    // Don't hide if moving to the tooltip
+    if (relatedTarget && relatedTarget.closest(".suggestion-tooltip")) {
+      return;
+    }
+
+    // Small delay to allow moving to the tooltip
+    setTimeout(() => {
+      const tooltipElement = document.querySelector(".suggestion-tooltip");
+      if (tooltipElement && tooltipElement.matches(":hover")) {
+        return;
+      }
+
+      setActiveSuggestion(null);
+    }, 100);
+  }, []);
 
   // Add event handlers after updating highlights
   useEffect(() => {
     if (!contentDivRef.current || suggestions.length === 0) return;
+
+    // First remove any existing event handlers to prevent duplicates
+    const cleanup = () => {
+      if (!contentDivRef.current) return;
+
+      const existingElements = contentDivRef.current.querySelectorAll(
+        ".grammar-error, .word-choice-suggestion"
+      );
+
+      existingElements.forEach((element) => {
+        element.removeEventListener(
+          "mouseenter",
+          handleSuggestionHover as EventListener
+        );
+        element.removeEventListener(
+          "mouseleave",
+          handleSuggestionLeave as EventListener
+        );
+      });
+    };
+
+    // Clean up existing handlers
+    cleanup();
 
     // Add hover listeners to all suggestion elements
     const suggestionElements = contentDivRef.current.querySelectorAll(
@@ -64,19 +196,8 @@ export function useWritingCheck(
     });
 
     // Cleanup function
-    return () => {
-      suggestionElements.forEach((element) => {
-        element.removeEventListener(
-          "mouseenter",
-          handleSuggestionHover as EventListener
-        );
-        element.removeEventListener(
-          "mouseleave",
-          handleSuggestionLeave as EventListener
-        );
-      });
-    };
-  }, [suggestions]);
+    return cleanup;
+  }, [suggestions, handleSuggestionHover, handleSuggestionLeave]);
 
   // Add tooltip hover handler
   useEffect(() => {
@@ -198,47 +319,92 @@ export function useWritingCheck(
     setIsLoading(true);
 
     try {
-      // Call API endpoint
+      // Get the plain text content without any spans
+      const plainContent = value;
+
+      // Clear existing suggestions before making new request
+      setSuggestions([]);
+      setActiveSuggestion(null);
+
+      // Update contentDivRef to show plain content without highlights
+      if (contentDivRef.current) {
+        contentDivRef.current.innerHTML =
+          formatContentWithLineBreaks(plainContent);
+      }
+
+      // Call API endpoint with plain text
       const response = await fetch("/api/drafts/check-writing", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ content: value }),
+        body: JSON.stringify({ content: plainContent }),
       });
 
       if (!response.ok) throw new Error("Failed to check writing");
 
       const data = await response.json();
 
-      // Save current selection/cursor position
-      const selection = window.getSelection();
-      let range = null;
+      // Process the tagged content
+      const { taggedContent, suggestions: newSuggestions } = data;
 
-      // Check if selection exists and has ranges before accessing
-      if (selection && selection.rangeCount > 0) {
-        range = selection.getRangeAt(0);
+      // Set suggestions for tooltip display
+      setSuggestions(newSuggestions);
+
+      // Process the tagged content to replace tags with spans
+      if (contentDivRef.current) {
+        // First convert line breaks in the tagged content to <br> tags for HTML display
+        let processedContent = taggedContent.replace(/\n/g, "<br>");
+
+        // Replace grammar tags with spans
+        processedContent = processedContent.replace(
+          /<grammar suggestion="([^"]*)" explanation="([^"]*)">([^<]*)<\/grammar>/g,
+          (
+            match: string,
+            suggestion: string,
+            explanation: string,
+            text: string
+          ) => {
+            const suggestionData = encodeURIComponent(
+              JSON.stringify({
+                type: "grammar",
+                original: text,
+                suggestion,
+                explanation,
+              })
+            );
+
+            return `<span class="grammar-error" data-suggestion="${suggestionData}" style="background-color: rgba(239, 68, 68, 0.1)">${text}</span>`;
+          }
+        );
+
+        // Replace wordchoice tags with spans
+        processedContent = processedContent.replace(
+          /<wordchoice suggestion="([^"]*)" explanation="([^"]*)">([^<]*)<\/wordchoice>/g,
+          (
+            match: string,
+            suggestion: string,
+            explanation: string,
+            text: string
+          ) => {
+            const suggestionData = encodeURIComponent(
+              JSON.stringify({
+                type: "word-choice",
+                original: text,
+                suggestion,
+                explanation,
+              })
+            );
+
+            return `<span class="word-choice-suggestion" data-suggestion="${suggestionData}" style="background-color: rgba(59, 130, 246, 0.1)">${text}</span>`;
+          }
+        );
+
+        // Update the content with processed HTML
+        contentDivRef.current.innerHTML = processedContent || "<br>";
       }
 
-      // Set suggestions and update the content with highlights
-      setSuggestions(data.suggestions);
-
-      // Wait for the DOM to update
-      setTimeout(() => {
-        // If we had a selection, try to restore it
-        if (
-          range &&
-          contentDivRef.current &&
-          document.activeElement === contentDivRef.current
-        ) {
-          try {
-            selection?.removeAllRanges();
-            selection?.addRange(range);
-          } catch (e) {
-            console.log("Could not restore selection", e);
-          }
-        }
-      }, 10);
+      // The highlighting is already done by replacing tags, so we don't need updateHighlightedContent
     } catch (error) {
       console.error("Error checking writing:", error);
     } finally {
@@ -246,196 +412,78 @@ export function useWritingCheck(
     }
   };
 
-  const formatContentWithLineBreaks = (text: string) => {
-    return text.replace(/\n/g, "<br>") || "<br>";
-  };
-
-  const updateHighlightedContent = () => {
-    if (!contentDivRef.current) return;
-
-    // Don't update if user is currently editing
-    if (document.activeElement === contentDivRef.current) {
-      return;
-    }
-
-    let html = value;
-
-    // Only replace text with highlighted spans if we have suggestions
-    if (suggestions.length > 0) {
-      // Convert line breaks to <br> before processing
-      html = html.replace(/\n/g, "<br>");
-
-      // Sort suggestions by position.from in descending order
-      // This way we can replace from end to start without affecting positions
-      const sortedSuggestions = [...suggestions].sort(
-        (a, b) => b.position.from - a.position.from
-      );
-
-      // Replace each suggestion with highlighted span
-      sortedSuggestions.forEach((suggestion) => {
-        const { from, to } = suggestion.position;
-        const original = suggestion.original;
-
-        // Use different classes for different suggestion types
-        const highlightClass =
-          suggestion.type === "grammar"
-            ? "grammar-error"
-            : "word-choice-suggestion";
-
-        // Create data attribute to store suggestion data
-        const suggestionData = encodeURIComponent(JSON.stringify(suggestion));
-
-        const beforeText = html.substring(0, from);
-        const afterText = html.substring(to);
-
-        html =
-          beforeText +
-          `<span class="${highlightClass}" data-suggestion="${suggestionData}" style="background-color: ${
-            suggestion.type === "grammar"
-              ? "rgba(239, 68, 68, 0.1)"
-              : "rgba(59, 130, 246, 0.1)"
-          }">${original}</span>` +
-          afterText;
-      });
-
-      // Set the HTML content
-      contentDivRef.current.innerHTML = html || "<br>";
-    } else {
-      // If no suggestions, format with line breaks
-      contentDivRef.current.innerHTML = formatContentWithLineBreaks(html);
-    }
-  };
-
-  // Handle input in the contentEditable div
-  const handleContentInput = (e: React.FormEvent<HTMLDivElement>) => {
-    // Get the current HTML content and convert <br> tags back to newlines
-    const target = e.target as HTMLDivElement;
-    const htmlContent = target.innerHTML;
-    const plainText = htmlContent
-      .replace(/<br\s*\/?>/gi, "\n")
-      .replace(/<div>/gi, "\n")
-      .replace(/<\/div>/gi, "")
-      .replace(/&nbsp;/gi, " ");
-
-    // Use DOMParser to convert HTML entities
-    const parser = new DOMParser();
-    const decodedText =
-      parser.parseFromString(plainText, "text/html").body.textContent || "";
-
-    // When content changes, clear suggestions
-    if (suggestions.length > 0) {
-      setSuggestions([]);
-      setActiveSuggestion(null);
-    }
-
-    // Update the value with the new content
-    onChange(decodedText);
-  };
-
-  // Hover handlers
-  const handleSuggestionHover = useCallback((e: MouseEvent) => {
-    const target = e.target as HTMLElement;
-    const suggestionData = target.getAttribute("data-suggestion");
-
-    if (suggestionData) {
-      try {
-        const suggestion = JSON.parse(
-          decodeURIComponent(suggestionData)
-        ) as WritingSuggestion;
-
-        // Calculate tooltip position
-        const rect = target.getBoundingClientRect();
-
-        // Estimate tooltip height based on content
-        const estimatedHeight = 150;
-
-        // Check if there's enough space above
-        let top = rect.top - 10;
-
-        // If tooltip would go off the top of the viewport, position it below instead
-        if (top - estimatedHeight < 0) {
-          top = rect.bottom + 10;
-
-          // Set class for tooltip below
-          setTimeout(() => {
-            const tooltip = document.querySelector(".suggestion-tooltip");
-            if (tooltip) {
-              tooltip.classList.add("tooltip-below");
-              tooltip.classList.remove("tooltip-above");
-            }
-          }, 0);
-        } else {
-          // Set class for tooltip above
-          setTimeout(() => {
-            const tooltip = document.querySelector(".suggestion-tooltip");
-            if (tooltip) {
-              tooltip.classList.add("tooltip-above");
-              tooltip.classList.remove("tooltip-below");
-            }
-          }, 0);
-        }
-
-        // Ensure the tooltip stays within the viewport horizontally
-        let left = Math.max(10, rect.left);
-        if (left + 300 > window.innerWidth) {
-          left = window.innerWidth - 310;
-        }
-
-        // Position the tooltip
-        setTooltipPosition({
-          top: top,
-          left: left,
-        });
-
-        setActiveSuggestion(suggestion);
-      } catch (error) {
-        console.error("Error parsing suggestion data:", error);
-      }
-    }
-  }, []);
-
-  const handleSuggestionLeave = useCallback((e: MouseEvent) => {
-    const relatedTarget = e.relatedTarget as HTMLElement;
-
-    // Don't hide if moving to the tooltip
-    if (relatedTarget && relatedTarget.closest(".suggestion-tooltip")) {
-      return;
-    }
-
-    // Small delay to allow moving to the tooltip
-    setTimeout(() => {
-      const tooltipElement = document.querySelector(".suggestion-tooltip");
-      if (tooltipElement && tooltipElement.matches(":hover")) {
-        return;
-      }
-
-      setActiveSuggestion(null);
-    }, 100);
-  }, []);
-
   // Define these as useCallbacks to stabilize their identity
   const applySuggestion = useCallback(() => {
     if (!activeSuggestion) return;
 
-    const { from, to } = activeSuggestion.position;
-    const newValue =
-      value.substring(0, from) +
-      activeSuggestion.suggestion +
-      value.substring(to);
+    const { original, suggestion } = activeSuggestion;
 
-    onChange(newValue);
+    // Create a new DOM parser to safely find and replace text
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(
+      contentDivRef.current?.innerHTML || "",
+      "text/html"
+    );
+
+    // Find the span element with this suggestion
+    const spans = doc.querySelectorAll(
+      ".grammar-error, .word-choice-suggestion"
+    );
+    let targetSpan: Element | null = null;
+
+    for (const span of spans) {
+      const spanData = span.getAttribute("data-suggestion");
+      if (spanData) {
+        try {
+          const suggestionData = JSON.parse(decodeURIComponent(spanData));
+          if (suggestionData.original === original) {
+            targetSpan = span;
+            break;
+          }
+        } catch (e) {
+          console.error("Error parsing span data", e);
+        }
+      }
+    }
+
+    // Replace the content if found
+    if (targetSpan) {
+      // Apply the suggestion while preserving any HTML formatting
+      // like line breaks within the content
+      targetSpan.outerHTML = suggestion;
+
+      // Update the content
+      if (contentDivRef.current) {
+        contentDivRef.current.innerHTML = doc.body.innerHTML;
+      }
+
+      // Convert HTML back to plain text while properly handling line breaks
+      const htmlContent = doc.body.innerHTML;
+      const plainText = htmlContent
+        .replace(/<br\s*\/?>/gi, "\n")
+        .replace(/<div>/gi, "\n")
+        .replace(/<\/div>/gi, "")
+        .replace(/&nbsp;/gi, " ");
+
+      const decodedText =
+        parser.parseFromString(plainText, "text/html").body.textContent || "";
+
+      onChange(decodedText);
+    }
 
     // Remove this suggestion from the list
     setSuggestions(
       suggestions.filter(
         (s) =>
-          s.position.from !== activeSuggestion.position.from ||
-          s.position.to !== activeSuggestion.position.to
+          !(
+            s.original === activeSuggestion.original &&
+            s.suggestion === activeSuggestion.suggestion
+          )
       )
     );
 
     setActiveSuggestion(null);
-  }, [activeSuggestion, value, onChange, suggestions]);
+  }, [activeSuggestion, onChange, suggestions]);
 
   const ignoreSuggestion = useCallback(() => {
     if (!activeSuggestion) return;
@@ -444,8 +492,10 @@ export function useWritingCheck(
     setSuggestions(
       suggestions.filter(
         (s) =>
-          s.position.from !== activeSuggestion.position.from ||
-          s.position.to !== activeSuggestion.position.to
+          !(
+            s.original === activeSuggestion.original &&
+            s.suggestion === activeSuggestion.suggestion
+          )
       )
     );
 

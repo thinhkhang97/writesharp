@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
+import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold, GenerationConfig } from '@google/generative-ai';
 
 // Initialize the Gemini API client
 const getApiKey = () => {
@@ -35,18 +35,19 @@ export const safetySettings = [
 ];
 
 // Get the Gemini Flash 2.0 model
-export const getGeminiModel = () => {
+export const getGeminiModel = (generationConfig?: GenerationConfig) => {
   const client = getGeminiClient();
   return client.getGenerativeModel({
     model: "gemini-2.0-flash",
     safetySettings,
+    generationConfig
   });
 };
 
 // Function to generate content with Gemini
-export async function generateWithGemini(prompt: string): Promise<string> {
+export async function generateWithGemini(prompt: string, generationConfig?: GenerationConfig): Promise<string> {
   try {
-    const model = getGeminiModel();
+    const model = getGeminiModel(generationConfig);
     const result = await model.generateContent(prompt);
     const response = result.response;
     return response.text();
