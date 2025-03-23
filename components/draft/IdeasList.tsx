@@ -58,7 +58,7 @@ export function IdeasList({
         items={sortedIdeas.map((idea) => idea.order.toString())}
         strategy={verticalListSortingStrategy}
       >
-        <ul className="border rounded-lg divide-y bg-white">
+        <ul className="space-y-4 pb-2">
           {sortedIdeas.map((idea, index) => (
             <SortableIdeaItem
               key={idea.order}

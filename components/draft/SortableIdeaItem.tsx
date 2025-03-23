@@ -63,13 +63,42 @@ export function SortableIdeaItem({
     zIndex: isDragging ? 999 : undefined,
   };
 
+  // Sort guides by order
+  const sortedGuides = idea.aiGuides
+    ? [...idea.aiGuides].sort((a, b) => a.order - b.order)
+    : [];
+
   return (
     <li
       key={idea.order}
-      className={`p-0 ${isDragging ? "rounded-md" : ""}`}
+      className={`p-0 mb-4 rounded-lg border shadow-sm overflow-hidden ${
+        isDragging ? "shadow-md" : ""
+      }`}
       ref={setNodeRef}
       style={style}
     >
+      {/* AI Guides first */}
+      {sortedGuides.length > 0 && (
+        <div className="bg-blue-50 border-b">
+          {sortedGuides.map((guide) => (
+            <IdeaGuideItem
+              key={`${idea.order}-${guide.order}`}
+              guide={guide}
+              ideaOrder={idea.order}
+              onRemove={() => {
+                const updatedIdeas = [...ideas];
+                updatedIdeas[index] = {
+                  ...idea,
+                  aiGuides:
+                    idea.aiGuides?.filter((g) => g.order !== guide.order) || [],
+                };
+                setIdeas(updatedIdeas);
+              }}
+            />
+          ))}
+        </div>
+      )}
+
       {/* Editing State */}
       {editingIdeaOrder === idea.order ? (
         <IdeaEditForm
@@ -80,7 +109,11 @@ export function SortableIdeaItem({
         />
       ) : (
         /* Normal Display State */
-        <div className="flex items-center justify-between p-3">
+        <div
+          className={`flex items-center justify-between p-3 ${
+            sortedGuides.length > 0 ? "bg-white" : ""
+          }`}
+        >
           <div className="flex items-center">
             <div
               className="px-2 mr-2 cursor-move touch-none"
@@ -89,7 +122,7 @@ export function SortableIdeaItem({
             >
               <GripVertical className="h-4 w-4 text-gray-400 hover:text-gray-600" />
             </div>
-            <span className="transform-none">{idea.text}</span>
+            <span className="transform-none font-medium">{idea.text}</span>
           </div>
           <div className="flex space-x-2">
             <Button
@@ -109,31 +142,6 @@ export function SortableIdeaItem({
               Remove
             </Button>
           </div>
-        </div>
-      )}
-
-      {/* AI Guides for this idea */}
-      {idea.aiGuides && idea.aiGuides.length > 0 && (
-        <div className="divide-y">
-          {idea.aiGuides
-            .sort((a, b) => a.order - b.order)
-            .map((guide) => (
-              <IdeaGuideItem
-                key={`${idea.order}-${guide.order}`}
-                guide={guide}
-                ideaOrder={idea.order}
-                onRemove={() => {
-                  const updatedIdeas = [...ideas];
-                  updatedIdeas[index] = {
-                    ...idea,
-                    aiGuides:
-                      idea.aiGuides?.filter((g) => g.order !== guide.order) ||
-                      [],
-                  };
-                  setIdeas(updatedIdeas);
-                }}
-              />
-            ))}
         </div>
       )}
     </li>
