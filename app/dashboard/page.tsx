@@ -1,6 +1,9 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { SignOutForm } from "@/components/auth/sign-out-form";
+import Link from "next/link";
+import { FileText } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export const metadata = {
   title: "Dashboard | WriteSharp",
@@ -29,12 +32,27 @@ export default async function DashboardPage() {
         <SignOutForm />
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow dark:bg-gray-800">
+      <div className="bg-white p-6 rounded-lg shadow dark:bg-gray-800 mb-8">
         <h2 className="text-xl font-semibold mb-4">Welcome, {userName}</h2>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-gray-600 dark:text-gray-400 mb-4">
           You&apos;ve successfully logged in to WriteSharp. This is your
           dashboard where you&apos;ll see all your writing projects.
         </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow dark:bg-gray-800">
+          <div className="flex items-center mb-4">
+            <FileText className="h-6 w-6 mr-2 text-blue-500" />
+            <h3 className="text-lg font-semibold">My Drafts</h3>
+          </div>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">
+            Manage all your writing drafts, ideas, and ongoing projects.
+          </p>
+          <Link href="/dashboard/drafts">
+            <Button className="w-full">View Drafts</Button>
+          </Link>
+        </div>
       </div>
     </div>
   );
