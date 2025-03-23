@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Pencil } from "lucide-react";
 import { Idea } from "@/lib/types";
 import { updateIdeas } from "@/app/dashboard/drafts/actions";
 
@@ -21,6 +21,8 @@ export default function DraftIdeas({
   const [newIdea, setNewIdea] = useState("");
   const [isLoadingGuide, setIsLoadingGuide] = useState(false);
   const [currentGuide, setCurrentGuide] = useState<string | null>(null);
+  const [editingIdeaOrder, setEditingIdeaOrder] = useState<number | null>(null);
+  const [editingIdeaText, setEditingIdeaText] = useState("");
 
   // When ideas change, persist to the database
   useEffect(() => {
@@ -61,6 +63,37 @@ export default function DraftIdeas({
     setIdeas([...ideas, newIdeaObj]);
     setNewIdea("");
     setCurrentGuide(null); // Clear the current guide after adding
+  };
+
+  const handleEditIdea = (order: number) => {
+    const ideaToEdit = ideas.find((idea) => idea.order === order);
+    if (ideaToEdit) {
+      setEditingIdeaOrder(order);
+      setEditingIdeaText(ideaToEdit.text);
+    }
+  };
+
+  const handleSaveEdit = () => {
+    if (!editingIdeaOrder || !editingIdeaText.trim()) {
+      setEditingIdeaOrder(null);
+      return;
+    }
+
+    const updatedIdeas = ideas.map((idea) => {
+      if (idea.order === editingIdeaOrder) {
+        return { ...idea, text: editingIdeaText.trim() };
+      }
+      return idea;
+    });
+
+    setIdeas(updatedIdeas);
+    setEditingIdeaOrder(null);
+    setEditingIdeaText("");
+  };
+
+  const handleCancelEdit = () => {
+    setEditingIdeaOrder(null);
+    setEditingIdeaText("");
   };
 
   const handleRemoveIdea = (orderToRemove: number) => {
@@ -158,18 +191,63 @@ export default function DraftIdeas({
             .sort((a, b) => a.order - b.order)
             .map((idea, index) => (
               <li key={idea.order} className="p-0">
-                {/* Idea */}
-                <div className="flex items-center justify-between p-3">
-                  <span>{idea.text}</span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleRemoveIdea(idea.order)}
-                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                  >
-                    Remove
-                  </Button>
-                </div>
+                {/* Editing State */}
+                {editingIdeaOrder === idea.order ? (
+                  <div className="flex items-center p-3">
+                    <Input
+                      value={editingIdeaText}
+                      onChange={(e) => setEditingIdeaText(e.target.value)}
+                      className="flex-grow mr-2"
+                      autoFocus
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          handleSaveEdit();
+                        } else if (e.key === "Escape") {
+                          handleCancelEdit();
+                        }
+                      }}
+                    />
+                    <div className="flex space-x-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={handleSaveEdit}
+                      >
+                        Save
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={handleCancelEdit}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  /* Normal Display State */
+                  <div className="flex items-center justify-between p-3">
+                    <span>{idea.text}</span>
+                    <div className="flex space-x-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEditIdea(idea.order)}
+                        className="text-blue-500 hover:text-blue-700 hover:bg-blue-50"
+                      >
+                        <Pencil className="h-3 w-3 mr-1" /> Edit
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoveIdea(idea.order)}
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  </div>
+                )}
 
                 {/* AI Guides for this idea */}
                 {idea.aiGuides && idea.aiGuides.length > 0 && (
