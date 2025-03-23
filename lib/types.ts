@@ -11,6 +11,17 @@ export interface AuthError {
   message: string
 }
 
+export interface AiGuide {
+  text: string
+  order: number
+}
+
+export interface Idea {
+  text: string
+  order: number
+  aiGuides?: AiGuide[]
+}
+
 export interface Draft {
   id: string
   user_id: string
@@ -21,10 +32,7 @@ export interface Draft {
     audience: string
     topic: string
   }
-  ideas: Array<{
-    text: string
-    order: number
-  }>
+  ideas: Idea[]
   status: 'In Progress' | 'Feedback Ready'
   created_at: string
   updated_at: string

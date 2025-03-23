@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
-import { Draft } from '@/lib/types'
+import { Draft, Idea } from '@/lib/types'
 import { revalidatePath } from 'next/cache'
 
 /**
@@ -123,4 +123,11 @@ export async function deleteDraft(draftId: string): Promise<void> {
     console.error('Error deleting draft:', error)
     throw error
   }
+}
+
+/**
+ * Updates ideas for a draft
+ */
+export async function updateIdeas(draftId: string, ideas: Idea[]): Promise<Draft> {
+  return updateDraft(draftId, { ideas })
 }

@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { getDraftById, updateDraft, updateDraftStatus } from "../../actions";
+import { Idea } from "@/lib/types";
 
 // Import components
 import { DraftEditHeader } from "@/components/draft/DraftHeader";
@@ -22,9 +23,7 @@ export default function DraftEditPage() {
   const [purpose, setPurpose] = useState("");
   const [audience, setAudience] = useState("");
   const [topic, setTopic] = useState("");
-  const [ideas, setIdeas] = useState<Array<{ text: string; order: number }>>(
-    []
-  );
+  const [ideas, setIdeas] = useState<Idea[]>([]);
   const [status, setStatus] = useState<"In Progress" | "Feedback Ready">(
     "In Progress"
   );
@@ -160,7 +159,13 @@ export default function DraftEditPage() {
         )}
 
         {/* Step 2: Ideas */}
-        {currentStep === 2 && <DraftIdeas ideas={ideas} setIdeas={setIdeas} />}
+        {currentStep === 2 && (
+          <DraftIdeas
+            ideas={ideas}
+            setIdeas={setIdeas}
+            draftId={id as string}
+          />
+        )}
 
         {/* Step 3: Content */}
         {currentStep === 3 && (
