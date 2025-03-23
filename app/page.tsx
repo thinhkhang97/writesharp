@@ -10,6 +10,25 @@ import {
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
+      {/* Header/Navigation */}
+      <header className="py-4 border-b border-gray-200">
+        <div className="container mx-auto max-w-7xl flex justify-between items-center px-4">
+          <h1 className="font-bold text-xl text-[#4A90E2]">WriteSharp</h1>
+          <div className="flex gap-4">
+            <Link href="/auth/login">
+              <Button variant="outline" className="hover:text-[#4A90E2]">
+                Sign In
+              </Button>
+            </Link>
+            <Link href="/auth/signup">
+              <Button className="bg-[#2ECC71] hover:bg-[#27AE60] text-white">
+                Sign Up
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </header>
+
       {/* Hero Section */}
       <section className="py-16 md:py-24 px-4">
         <div className="container mx-auto max-w-7xl">
@@ -21,9 +40,11 @@ export default function Home() {
               <p className="text-lg text-[#666666]">
                 Organize ideas, write better, track your level—all in one spot.
               </p>
-              <Button className="bg-[#2ECC71] hover:bg-[#27AE60] text-white font-medium px-8 py-6 rounded-md">
-                Start Writing Free
-              </Button>
+              <Link href="/auth/signup">
+                <Button className="bg-[#2ECC71] hover:bg-[#27AE60] text-white font-medium px-8 py-6 rounded-md">
+                  Start Writing Free
+                </Button>
+              </Link>
             </div>
             <div className="flex-1 flex justify-center">
               <div className="bg-gray-200 w-full max-w-[640px] aspect-video flex items-center justify-center rounded-md shadow-md">
@@ -153,9 +174,11 @@ export default function Home() {
               Ready to Write Better? Join Free.
             </h2>
 
-            <Button className="bg-[#2ECC71] hover:bg-[#27AE60] text-white font-medium px-8 py-6 rounded-md">
-              Get Started
-            </Button>
+            <Link href="/auth/signup">
+              <Button className="bg-[#2ECC71] hover:bg-[#27AE60] text-white font-medium px-8 py-6 rounded-md">
+                Get Started
+              </Button>
+            </Link>
 
             <div className="flex gap-6 pt-6">
               <Link href="#" className="text-[#4A90E2] hover:underline">
@@ -163,6 +186,12 @@ export default function Home() {
               </Link>
               <Link href="#" className="text-[#4A90E2] hover:underline">
                 Contact
+              </Link>
+              <Link
+                href="/auth/login"
+                className="text-[#4A90E2] hover:underline"
+              >
+                Login
               </Link>
             </div>
           </div>
