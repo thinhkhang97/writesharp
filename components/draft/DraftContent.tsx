@@ -43,12 +43,17 @@ export default function DraftContent({
           </div>
         </div>
       </div>
-      <textarea
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        placeholder="Start writing your content here..."
-        className="w-full border rounded-lg p-4 min-h-[300px] resize-y bg-white"
-      />
+      <div className="relative">
+        <textarea
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          placeholder="Start writing your content here..."
+          className="w-full border rounded-lg p-4 min-h-[calc(100vh-22rem)] resize-y bg-white"
+        />
+        <div className="absolute top-3 right-3 text-xs text-gray-400">
+          <p>{content.length} characters</p>
+        </div>
+      </div>
     </div>
   );
 }

@@ -14,6 +14,7 @@ import DraftFoundation from "@/components/draft/DraftFoundation";
 import DraftIdeas from "@/components/draft/DraftIdeas";
 import DraftContent from "@/components/draft/DraftContent";
 import DraftNavigation from "@/components/draft/DraftNavigation";
+import DraftSidebar from "@/components/draft/DraftSidebar";
 
 export default function DraftEditPage() {
   const router = useRouter();
@@ -119,7 +120,11 @@ export default function DraftEditPage() {
   }
 
   return (
-    <div className="container mx-auto py-8">
+    <div
+      className={`mx-auto py-8 ${
+        currentStep === 3 ? "container-lg max-w-7xl" : "container"
+      }`}
+    >
       {/* Draft Edit Header */}
       <DraftEditHeader
         draftId={id as string}
@@ -131,65 +136,80 @@ export default function DraftEditPage() {
       {/* Step Bar */}
       <DraftStepBar currentStep={currentStep} onStepChange={setCurrentStep} />
 
-      <div className="space-y-6">
-        {/* Title is shown on all steps */}
-        <div>
-          <label htmlFor="title" className="block text-sm font-medium mb-1">
-            Title
-          </label>
-          <Input
-            id="title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Draft title"
-            className="w-full"
+      {/* Conditional flex layout for step 3 */}
+      <div className={currentStep === 3 ? "flex gap-6" : ""}>
+        <div className={`space-y-6 ${currentStep === 3 ? "flex-1" : ""}`}>
+          {/* Title is shown on all steps */}
+          <div>
+            <label htmlFor="title" className="block text-sm font-medium mb-1">
+              Title
+            </label>
+            <Input
+              id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Draft title"
+              className="w-full"
+            />
+          </div>
+
+          {/* Step 1: Foundation */}
+          {currentStep === 1 && (
+            <DraftFoundation
+              purpose={purpose}
+              setPurpose={setPurpose}
+              audience={audience}
+              setAudience={setAudience}
+              topic={topic}
+              setTopic={setTopic}
+            />
+          )}
+
+          {/* Step 2: Ideas */}
+          {currentStep === 2 && (
+            <DraftIdeas
+              ideas={ideas}
+              setIdeas={setIdeas}
+              draftId={id as string}
+              foundation={{
+                topic,
+                audience,
+                purpose,
+              }}
+            />
+          )}
+
+          {/* Step 3: Content */}
+          {currentStep === 3 && (
+            <DraftContent
+              content={content}
+              setContent={setContent}
+              status={status}
+              onStatusChange={handleStatusChange}
+            />
+          )}
+
+          {/* Step Navigation */}
+          <DraftNavigation
+            currentStep={currentStep}
+            onPrevStep={() => setCurrentStep(Math.max(1, currentStep - 1))}
+            onNextStep={() => setCurrentStep(Math.min(3, currentStep + 1))}
+            onSave={handleSave}
+            isSaving={isSaving}
           />
         </div>
 
-        {/* Step 1: Foundation */}
-        {currentStep === 1 && (
-          <DraftFoundation
-            purpose={purpose}
-            setPurpose={setPurpose}
-            audience={audience}
-            setAudience={setAudience}
-            topic={topic}
-            setTopic={setTopic}
-          />
-        )}
-
-        {/* Step 2: Ideas */}
-        {currentStep === 2 && (
-          <DraftIdeas
-            ideas={ideas}
-            setIdeas={setIdeas}
-            draftId={id as string}
+        {/* Right sidebar for step 3 */}
+        {currentStep === 3 && (
+          <DraftSidebar
             foundation={{
               topic,
               audience,
               purpose,
             }}
+            ideas={ideas}
           />
         )}
-
-        {/* Step 3: Content */}
-        {currentStep === 3 && (
-          <DraftContent
-            content={content}
-            setContent={setContent}
-            status={status}
-            onStatusChange={handleStatusChange}
-          />
-        )}
-
-        {/* Step Navigation */}
-        <DraftNavigation
-          currentStep={currentStep}
-          onPrevStep={() => setCurrentStep(Math.max(1, currentStep - 1))}
-          onNextStep={() => setCurrentStep(Math.min(3, currentStep + 1))}
-          onSave={handleSave}
-          isSaving={isSaving}
-        />
       </div>
     </div>
   );
