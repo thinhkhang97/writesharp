@@ -47,11 +47,7 @@ export default function DraftContent({
       </div>
 
       <div className="relative">
-        <WritingChecker
-          value={content}
-          onChange={setContent}
-          characterCount={true}
-        />
+        <WritingChecker value={content} onChange={setContent} />
       </div>
     </div>
   );
