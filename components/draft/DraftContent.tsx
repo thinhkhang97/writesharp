@@ -1,5 +1,7 @@
 "use client";
 
+import { RichTextEditor } from "../ui/rich-text-editor";
+
 interface DraftContentProps {
   content: string;
   setContent: (content: string) => void;
@@ -43,16 +45,13 @@ export default function DraftContent({
           </div>
         </div>
       </div>
+
       <div className="relative">
-        <textarea
+        <RichTextEditor
           value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="Start writing your content here..."
-          className="w-full border rounded-lg p-4 min-h-[calc(100vh-22rem)] resize-y bg-white"
+          onChange={setContent}
+          characterCount={true}
         />
-        <div className="absolute top-3 right-3 text-xs text-gray-400">
-          <p>{content.length} characters</p>
-        </div>
       </div>
     </div>
   );
