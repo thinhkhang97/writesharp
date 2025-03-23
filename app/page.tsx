@@ -35,10 +35,12 @@ export default function Home() {
           <div className="flex flex-col md:flex-row items-center gap-12">
             <div className="flex-1 space-y-6">
               <h1 className="text-4xl md:text-5xl font-bold text-[#333333]">
-                Sharpen Your Writing, See Your Edge
+                Bridge Your Ideas to Polished Writing
               </h1>
               <p className="text-lg text-[#666666]">
-                Organize ideas, write better, track your level—all in one spot.
+                WriteSharp helps aspiring writers organize thoughts, express
+                ideas clearly, and master grammar and word choice—all in one
+                supportive environment.
               </p>
               <Link href="/auth/signup">
                 <Button className="bg-[#2ECC71] hover:bg-[#27AE60] text-white font-medium px-8 py-6 rounded-md">
@@ -68,8 +70,10 @@ export default function Home() {
                 <div className="mb-4 p-3 bg-blue-100 rounded-full">
                   <LightbulbIcon className="h-8 w-8 text-[#4A90E2]" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Brainstorm Easy</h3>
-                <p className="text-[#666666]">Turn messy ideas into a plan.</p>
+                <h3 className="text-xl font-semibold mb-2">Idea Generation</h3>
+                <p className="text-[#666666]">
+                  Develop and structure your original ideas with confidence.
+                </p>
               </div>
             </div>
 
@@ -78,8 +82,10 @@ export default function Home() {
                 <div className="mb-4 p-3 bg-blue-100 rounded-full">
                   <PenIcon className="h-8 w-8 text-[#4A90E2]" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Write with Focus</h3>
-                <p className="text-[#666666]">Stay on track, no drift.</p>
+                <h3 className="text-xl font-semibold mb-2">Clear Expression</h3>
+                <p className="text-[#666666]">
+                  Write with clarity, logic, and purpose in your own voice.
+                </p>
               </div>
             </div>
 
@@ -88,8 +94,12 @@ export default function Home() {
                 <div className="mb-4 p-3 bg-blue-100 rounded-full">
                   <ActivityIcon className="h-8 w-8 text-[#4A90E2]" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">See Your Growth</h3>
-                <p className="text-[#666666]">Know your writer level—daily.</p>
+                <h3 className="text-xl font-semibold mb-2">
+                  Skill Improvement
+                </h3>
+                <p className="text-[#666666]">
+                  Identify weaknesses and track your growth as a writer.
+                </p>
               </div>
             </div>
           </div>
@@ -100,7 +110,7 @@ export default function Home() {
       <section className="py-16 px-4">
         <div className="container mx-auto max-w-7xl">
           <h2 className="text-2xl md:text-3xl font-bold text-[#4A90E2] text-center mb-12">
-            Your Writing, Leveled Up
+            Your Writing Journey
           </h2>
 
           <div className="flex flex-col md:flex-row items-center justify-between gap-8">
@@ -108,9 +118,9 @@ export default function Home() {
               <div className="bg-gray-200 w-[200px] h-[100px] flex items-center justify-center rounded-md mb-4">
                 <p className="text-gray-600">Idea Organizer screenshot</p>
               </div>
-              <h3 className="text-lg font-semibold">1. Plan It</h3>
+              <h3 className="text-lg font-semibold">1. Brainstorm</h3>
               <p className="text-sm text-[#666666]">
-                Organize your thoughts first
+                Generate and organize your thoughts logically
               </p>
             </div>
 
@@ -120,9 +130,9 @@ export default function Home() {
               <div className="bg-gray-200 w-[200px] h-[100px] flex items-center justify-center rounded-md mb-4">
                 <p className="text-gray-600">Practice Room screenshot</p>
               </div>
-              <h3 className="text-lg font-semibold">2. Write It</h3>
+              <h3 className="text-lg font-semibold">2. Express</h3>
               <p className="text-sm text-[#666666]">
-                Craft your text with guidance
+                Transform ideas into clear, coherent writing
               </p>
             </div>
 
@@ -132,9 +142,9 @@ export default function Home() {
               <div className="bg-gray-200 w-[200px] h-[100px] flex items-center justify-center rounded-md mb-4">
                 <p className="text-gray-600">Skill Evaluator radar</p>
               </div>
-              <h3 className="text-lg font-semibold">3. Track It</h3>
+              <h3 className="text-lg font-semibold">3. Improve</h3>
               <p className="text-sm text-[#666666]">
-                Watch your skills improve
+                Track progress and overcome writing weaknesses
               </p>
             </div>
           </div>
@@ -145,16 +155,17 @@ export default function Home() {
       <section className="py-16 bg-[#F5F6F5] px-4">
         <div className="container mx-auto max-w-7xl">
           <h2 className="text-2xl md:text-3xl font-bold text-[#4A90E2] text-center mb-8">
-            Grow Like You Mean It
+            Build Your Writing Habit
           </h2>
 
           <div className="max-w-3xl mx-auto flex flex-col md:flex-row items-center gap-8 bg-white p-8 rounded-lg shadow-md">
             <div className="flex-1">
               <blockquote className="text-lg italic mb-4">
-                &ldquo;Logic went from 5 to 9 in a week—WriteSharp&apos;s my
-                coach.&rdquo;
+                &ldquo;WriteSharp helped me organize my thoughts and express
+                them clearly. My writing improved dramatically in just
+                weeks.&rdquo;
               </blockquote>
-              <p className="text-right font-medium">—Alex, 22</p>
+              <p className="text-right font-medium">—Alex, Student</p>
             </div>
 
             <div className="flex-1 flex justify-center">
@@ -166,17 +177,49 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Target Audience Section */}
+      <section className="py-16 px-4">
+        <div className="container mx-auto max-w-7xl">
+          <h2 className="text-2xl md:text-3xl font-bold text-[#4A90E2] text-center mb-12">
+            Who WriteSharp Is For
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <h3 className="text-xl font-semibold mb-4 text-[#4A90E2]">
+                Young Writers
+              </h3>
+              <p className="text-[#666666]">
+                Students and hobbyists looking to improve the clarity,
+                structure, and correctness of their writing in a supportive
+                environment.
+              </p>
+            </div>
+
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <h3 className="text-xl font-semibold mb-4 text-[#4A90E2]">
+                Writing Beginners
+              </h3>
+              <p className="text-[#666666]">
+                Those who struggle with organizing ideas or grammar, with room
+                to grow as your skills develop over time.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Footer Section */}
       <section className="py-16 bg-white border-t border-gray-200 px-4">
         <div className="container mx-auto max-w-7xl">
           <div className="flex flex-col items-center text-center space-y-8">
             <h2 className="text-xl text-[#333333]">
-              Ready to Write Better? Join Free.
+              Ready to Improve Your Writing? Join Free Today.
             </h2>
 
             <Link href="/auth/signup">
               <Button className="bg-[#2ECC71] hover:bg-[#27AE60] text-white font-medium px-8 py-6 rounded-md">
-                Get Started
+                Start Your Writing Journey
               </Button>
             </Link>
 

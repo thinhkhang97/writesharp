@@ -1,4 +1,20 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# WriteSharp - Sharpen Your Writing Skills
+
+WriteSharp is a web application designed to help aspiring writers—particularly young individuals—improve their writing skills by generating and organizing their own ideas, expressing them clearly and logically, and mastering grammar and word choice. It's a practical, user-driven tool that bridges the gap between raw thoughts and polished writing.
+
+## Purpose
+
+To empower users to:
+
+- Develop their ability to brainstorm and structure original ideas.
+- Write with clarity, logic, and confidence.
+- Identify and overcome personal writing weaknesses (e.g., grammar errors, poor word choice).
+- Build a consistent writing habit in a flexible, supportive environment.
+
+## Target Audience
+
+- Young writers (e.g., students, hobbyists) looking to improve clarity, structure, and correctness.
+- Beginners who struggle with organizing ideas or grammar, with room to scale for advanced users.
 
 ## Getting Started
 
