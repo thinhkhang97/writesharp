@@ -29,7 +29,7 @@ export function WritingChecker({ value, onChange }: WritingCheckerProps) {
   return (
     <div className="writing-checker flex flex-col border rounded-lg overflow-hidden">
       <ContentEditor
-        contentDivRef={contentDivRef}
+        contentDivRef={contentDivRef as React.RefObject<HTMLDivElement>}
         handleContentInput={handleContentInput}
         isLoading={isLoading}
       />

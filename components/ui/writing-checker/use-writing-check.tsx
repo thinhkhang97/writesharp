@@ -19,8 +19,10 @@ export function useWritingCheck(
 
   // Initialize content
   useEffect(() => {
-    if (contentDivRef.current && !contentDivRef.current.textContent) {
-      contentDivRef.current.textContent = value;
+    if (contentDivRef.current) {
+      // Convert line breaks to <br> tags to preserve paragraphs
+      const formattedContent = value.replace(/\n/g, "<br>");
+      contentDivRef.current.innerHTML = formattedContent || "<br>";
     }
   }, []);
 
@@ -31,9 +33,11 @@ export function useWritingCheck(
       if (document.activeElement !== contentDivRef.current) {
         if (suggestions.length > 0) {
           updateHighlightedContent();
-        } else if (contentDivRef.current.textContent !== value) {
-          // If no suggestions, just update the text
-          contentDivRef.current.textContent = value;
+        } else if (
+          contentDivRef.current.innerHTML !== formatContentWithLineBreaks(value)
+        ) {
+          // If no suggestions, update the text with proper line breaks
+          contentDivRef.current.innerHTML = formatContentWithLineBreaks(value);
         }
       }
     }
@@ -242,6 +246,10 @@ export function useWritingCheck(
     }
   };
 
+  const formatContentWithLineBreaks = (text: string) => {
+    return text.replace(/\n/g, "<br>") || "<br>";
+  };
+
   const updateHighlightedContent = () => {
     if (!contentDivRef.current) return;
 
@@ -254,6 +262,9 @@ export function useWritingCheck(
 
     // Only replace text with highlighted spans if we have suggestions
     if (suggestions.length > 0) {
+      // Convert line breaks to <br> before processing
+      html = html.replace(/\n/g, "<br>");
+
       // Sort suggestions by position.from in descending order
       // This way we can replace from end to start without affecting positions
       const sortedSuggestions = [...suggestions].sort(
@@ -290,15 +301,26 @@ export function useWritingCheck(
       // Set the HTML content
       contentDivRef.current.innerHTML = html || "<br>";
     } else {
-      // If no suggestions, just set the plain content
-      contentDivRef.current.innerHTML = html || "<br>";
+      // If no suggestions, format with line breaks
+      contentDivRef.current.innerHTML = formatContentWithLineBreaks(html);
     }
   };
 
   // Handle input in the contentEditable div
   const handleContentInput = (e: React.FormEvent<HTMLDivElement>) => {
-    // Get the current text content without any HTML tags
-    const newContent = (e.target as HTMLDivElement).innerText;
+    // Get the current HTML content and convert <br> tags back to newlines
+    const target = e.target as HTMLDivElement;
+    const htmlContent = target.innerHTML;
+    const plainText = htmlContent
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<div>/gi, "\n")
+      .replace(/<\/div>/gi, "")
+      .replace(/&nbsp;/gi, " ");
+
+    // Use DOMParser to convert HTML entities
+    const parser = new DOMParser();
+    const decodedText =
+      parser.parseFromString(plainText, "text/html").body.textContent || "";
 
     // When content changes, clear suggestions
     if (suggestions.length > 0) {
@@ -307,7 +329,7 @@ export function useWritingCheck(
     }
 
     // Update the value with the new content
-    onChange(newContent);
+    onChange(decodedText);
   };
 
   // Hover handlers
