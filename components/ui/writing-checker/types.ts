@@ -1,3 +1,5 @@
+import { RefObject } from "react";
+
 export interface WritingSuggestion {
   type: "grammar" | "word-choice";
   original: string;
@@ -8,4 +10,6 @@ export interface WritingSuggestion {
 export interface TooltipPosition {
   x: number;
   y: number;
-} 
+}
+
+export type EditorRefType = RefObject<HTMLDivElement | null>; 
