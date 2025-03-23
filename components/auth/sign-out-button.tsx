@@ -16,8 +16,8 @@ export function SignOutButton() {
       // Force a hard navigation to home page
       window.location.href = "/";
     } catch (error) {
-      toast.error("Failed to sign out");
       console.error(error);
+      toast.error("Failed to sign out");
       setIsLoading(false);
     }
   };

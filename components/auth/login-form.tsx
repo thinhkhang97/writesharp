@@ -23,7 +23,17 @@ export function LoginForm() {
         setError(result.error);
         toast.error(result.error);
       }
+      // If no error and no redirect, show success toast
+      if (!result?.error) {
+        toast.success("Logging in...");
+      }
     } catch (err) {
+      // Ignore NEXT_REDIRECT errors as they're part of the normal flow
+      if (err instanceof Error && err.message.includes("NEXT_REDIRECT")) {
+        // This is expected for successful login, not an actual error
+        return;
+      }
+
       const errorMessage =
         err instanceof Error ? err.message : "Something went wrong";
       setError(errorMessage);
