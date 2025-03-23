@@ -1,6 +1,6 @@
 "use client";
 
-import { RichTextEditor } from "../ui/rich-text-editor";
+import { WritingChecker } from "../ui/writing-checker";
 
 interface DraftContentProps {
   content: string;
@@ -47,7 +47,7 @@ export default function DraftContent({
       </div>
 
       <div className="relative">
-        <RichTextEditor
+        <WritingChecker
           value={content}
           onChange={setContent}
           characterCount={true}
