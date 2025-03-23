@@ -6,6 +6,6 @@ export interface WritingSuggestion {
 }
 
 export interface TooltipPosition {
-  top: number;
-  left: number;
+  x: number;
+  y: number;
 } 
