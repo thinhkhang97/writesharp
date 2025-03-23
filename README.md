@@ -18,6 +18,20 @@ To empower users to:
 
 ## Getting Started
 
+### Environment Setup
+
+1. Copy the `.env.local.example` file to `.env.local`:
+
+```bash
+cp .env.local.example .env.local
+```
+
+2. Set up your environment variables:
+   - For Supabase, add your Supabase credentials
+   - For Gemini AI, add your Gemini API key (get one from [Google AI Studio](https://makersuite.google.com/app/apikey))
+
+### Running the Application
+
 First, run the development server:
 
 ```bash
@@ -50,3 +64,42 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## API Features
+
+### Gemini AI Integration
+
+WriteSharp uses Google's Gemini AI (Flash 2.0 model) to provide intelligent writing suggestions. The API includes:
+
+#### Ideas Generation API
+
+Endpoint: `POST /api/ideas`
+
+Request body:
+
+```json
+{
+  "existingIdeas": ["Your first idea", "Your second idea"],
+  "ideaIndex": 0, // Optional: index of the idea being edited
+  "foundation": {
+    // Optional: foundation information for more targeted suggestions
+    "topic": "Topic of your writing",
+    "audience": "Your target audience",
+    "purpose": "Purpose of your writing"
+  }
+}
+```
+
+Response:
+
+```json
+{
+  "suggestion": "AI-generated suggestion",
+  "ideaIndex": 0 // If provided in request
+}
+```
+
+#### Testing the API
+
+- To test if Gemini is properly configured: `GET /api/test-gemini`
+- To test the ideas API with foundation information: `POST /api/test-gemini`

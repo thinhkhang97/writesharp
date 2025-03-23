@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { generateWithGemini } from '@/lib/gemini';
 
 export async function POST(request: NextRequest) {
   try {
     // Parse the request body
     const body = await request.json();
-    const { existingIdeas, ideaIndex } = body;
+    const { existingIdeas, ideaIndex, foundation } = body;
 
     if (!existingIdeas || !Array.isArray(existingIdeas)) {
       return NextResponse.json(
@@ -13,72 +14,61 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate prompt based on existing ideas
-    // In a production environment, you'd call an actual LLM API here (OpenAI, Anthropic, etc.)
-    const prompt = generatePrompt(existingIdeas);
+    // Generate a prompt for Gemini based on existing ideas and foundation info
+    const promptForGemini = createPromptForGemini(existingIdeas, foundation);
+    
+    // Call Gemini API to generate the suggestion
+    const suggestion = await generateWithGemini(promptForGemini);
 
     // If ideaIndex is provided, return it along with the suggestion
     // Otherwise, just return the suggestion (for the input field guidance)
     const response = ideaIndex !== undefined
-      ? { suggestion: prompt, ideaIndex }
-      : { suggestion: prompt };
+      ? { suggestion, ideaIndex }
+      : { suggestion };
 
     return NextResponse.json(response);
   } catch (error) {
-    console.error('Error generating prompt:', error);
+    console.error('Error generating suggestion with Gemini:', error);
     return NextResponse.json(
-      { error: 'Failed to generate prompt' },
+      { error: 'Failed to generate suggestion' },
       { status: 500 }
     );
   }
 }
 
-function generatePrompt(existingIdeas: string[]): string {
-  // Simple prompt generation based on existing ideas
-  // This is a basic implementation - in production, you'd use a more sophisticated approach
+interface FoundationInfo {
+  topic?: string;
+  audience?: string;
+  purpose?: string;
+}
+
+function createPromptForGemini(existingIdeas: string[], foundation?: FoundationInfo): string {
+  let prompt = "You are a creative writing assistant. ";
   
-  // Check if any ideas are about habits
-  if (existingIdeas.some(idea => idea.toLowerCase().includes('habit'))) {
-    const habitPrompts = [
-      "Ask yourself why people struggle to maintain new habits",
-      "Consider what environmental factors support habit formation",
-      "What metrics could track progress for this habit?",
-      "How might this habit connect to identity formation?",
-      "What obstacles prevent people from adopting this habit?"
-    ];
-    return habitPrompts[Math.floor(Math.random() * habitPrompts.length)];
+  // Add foundation information if available
+  if (foundation) {
+    prompt += "Here's some information about what the user is writing:\n\n";
+    
+    if (foundation.topic) {
+      prompt += `Topic: ${foundation.topic}\n`;
+    }
+    
+    if (foundation.audience) {
+      prompt += `Target audience: ${foundation.audience}\n`;
+    }
+    
+    if (foundation.purpose) {
+      prompt += `Purpose: ${foundation.purpose}\n`;
+    }
+    
+    prompt += "\n";
   }
   
-  // General prompts based on number of ideas
   if (existingIdeas.length === 0) {
-    const startingPrompts = [
-      "What problem are you trying to solve?",
-      "Who is your target audience for this topic?",
-      "What's a common misconception about this subject?",
-      "What inspired your interest in this topic?",
-      "What's the most surprising fact about this topic?"
-    ];
-    return startingPrompts[Math.floor(Math.random() * startingPrompts.length)];
+    prompt += "The user is starting to brainstorm ideas for a piece of writing. Provide a thought-provoking question to help them get started. Keep it concise (20 words or less).";
+  } else {
+    prompt += `The user is brainstorming ideas and has already written the following points:\n\n${existingIdeas.map((idea, i) => `${i+1}. ${idea}`).join('\n')}\n\nBased on these ideas, provide a thought-provoking question or suggestion to help them develop their thinking further. Keep it concise (20 words or less).`;
   }
   
-  if (existingIdeas.length >= 3) {
-    const developmentPrompts = [
-      "Consider adding a counterargument to one of your existing points",
-      "How do these ideas connect with each other?",
-      "What evidence would strengthen your most important point?",
-      "Is there a real-world example that illustrates these concepts?",
-      "What's a different perspective on this topic you haven't considered?"
-    ];
-    return developmentPrompts[Math.floor(Math.random() * developmentPrompts.length)];
-  }
-  
-  // Default prompts
-  const defaultPrompts = [
-    "What specific aspect of this topic needs more exploration?",
-    "How might someone disagree with these ideas?",
-    "What's a practical application of these concepts?",
-    "What historical context is relevant to this topic?",
-    "How might these ideas evolve in the future?"
-  ];
-  return defaultPrompts[Math.floor(Math.random() * defaultPrompts.length)];
+  return prompt;
 } 

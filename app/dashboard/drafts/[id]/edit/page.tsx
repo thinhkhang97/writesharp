@@ -164,6 +164,11 @@ export default function DraftEditPage() {
             ideas={ideas}
             setIdeas={setIdeas}
             draftId={id as string}
+            foundation={{
+              topic,
+              audience,
+              purpose,
+            }}
           />
         )}
 

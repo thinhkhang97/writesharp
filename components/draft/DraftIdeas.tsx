@@ -28,6 +28,11 @@ interface DraftIdeasProps {
   ideas: Idea[];
   setIdeas: (ideas: Idea[]) => void;
   draftId: string;
+  foundation?: {
+    topic?: string;
+    audience?: string;
+    purpose?: string;
+  };
 }
 
 // SortableItem component for drag and drop
@@ -196,6 +201,7 @@ export default function DraftIdeas({
   ideas,
   setIdeas,
   draftId,
+  foundation,
 }: DraftIdeasProps) {
   const [newIdea, setNewIdea] = useState("");
   const [isLoadingGuide, setIsLoadingGuide] = useState(false);
@@ -338,6 +344,7 @@ export default function DraftIdeas({
         },
         body: JSON.stringify({
           existingIdeas: ideaTexts,
+          foundation: foundation, // Include foundation information if available
         }),
       });
 
