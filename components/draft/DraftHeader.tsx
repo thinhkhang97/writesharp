@@ -2,13 +2,18 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, ArrowLeft, Save } from "lucide-react";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { createDraft } from "@/app/dashboard/drafts/actions";
 
-export default function DraftHeader({ userId }: { userId: string }) {
+export interface DraftHeaderProps {
+  userId: string;
+}
+
+export default function DraftHeader({ userId }: DraftHeaderProps) {
   const router = useRouter();
   const [isCreating, setIsCreating] = useState(false);
 
@@ -46,6 +51,42 @@ export default function DraftHeader({ userId }: { userId: string }) {
       >
         <PlusCircle className="h-4 w-4" />
         {isCreating ? "Creating..." : "New Draft"}
+      </Button>
+    </div>
+  );
+}
+
+export interface DraftEditHeaderProps {
+  draftId: string;
+  title: string;
+  onSave: () => void;
+  isSaving: boolean;
+}
+
+export function DraftEditHeader({
+  draftId,
+  title,
+  onSave,
+  isSaving,
+}: DraftEditHeaderProps) {
+  return (
+    <div className="mb-6 flex items-center justify-between">
+      <div className="flex items-center gap-4">
+        <Link href={`/dashboard/drafts/${draftId}`}>
+          <Button variant="ghost" size="sm" className="flex items-center gap-1">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Draft
+          </Button>
+        </Link>
+        <h1 className="text-2xl font-semibold">Edit Draft: {title}</h1>
+      </div>
+      <Button
+        onClick={onSave}
+        disabled={isSaving}
+        className="flex items-center gap-2"
+      >
+        <Save className="h-4 w-4" />
+        {isSaving ? "Saving..." : "Save Changes"}
       </Button>
     </div>
   );
