@@ -11,6 +11,30 @@ To empower users to:
 - Identify and overcome personal writing weaknesses (e.g., grammar errors, poor word choice).
 - Build a consistent writing habit in a flexible, supportive environment.
 
+## Features
+
+### Auto-Save
+
+WriteSharp includes an automatic draft saving feature that:
+
+- Silently saves your work as you type
+- Waits until you stop typing for a few seconds before saving
+- Shows you when your draft was last saved
+- Works alongside manual saves when you want to explicitly save progress
+
+For more details on the implementation, see [Auto-Save Implementation](./documents/auto-save-implementation.md).
+
+### AI-Powered Writing Evaluation
+
+WriteSharp uses advanced AI to evaluate your writing skills:
+
+- Gemini AI analyzes your drafts across multiple writing dimensions
+- Provides scores for clarity, logic, expression, structure, and grammar
+- Tracks your progress over time with a writer profile
+- Automatically determines your writing level based on performance
+
+For more details on this feature, see [LLM Evaluation Implementation](./documents/llm-evaluation-implementation.md).
+
 ## Target Audience
 
 - Young writers (e.g., students, hobbyists) looking to improve clarity, structure, and correctness.
@@ -103,3 +127,50 @@ Response:
 
 - To test if Gemini is properly configured: `GET /api/test-gemini`
 - To test the ideas API with foundation information: `POST /api/test-gemini`
+
+## Features
+
+- User Authentication with Email/Password
+- Draft Management System
+- Writing Foundation Setup
+- Ideas Development Tools
+- Content Editor with Auto-Save
+- Writing Skill Evaluator
+  - Automatic evaluation of writing skills across multiple dimensions
+  - Writer profile that tracks skill development over time
+  - Personalized writing tips based on performance
+  - Visual progress tracking with charts
+- And more!
+
+## Writing Skill Evaluator
+
+The application includes an automatic skill evaluation system that analyzes your writing and provides actionable feedback:
+
+### How It Works
+
+1. **Triggering the Evaluator**
+
+   - When you save a draft or mark it as "Feedback Ready", the system automatically evaluates your writing
+   - It checks for originality and flags content that may be copied from external sources
+   - Your skills profile is updated with the latest evaluation
+
+2. **Evaluation Criteria**
+
+   - **Reasoner Skills (60% weight)**:
+     - Clarity (20%): Measures the precision of language and concepts
+     - Logic (20%): Assesses the logical flow and connections between ideas
+     - Expression (20%): Evaluates vocabulary diversity and word choice
+   - **Polisher Skills (40% weight)**:
+     - Structure (20%): Checks for proper introduction, body, and conclusion
+     - Grammar/Words (20%): Identifies grammatical and spelling errors
+
+3. **Writer Profile**
+
+   - Your overall level (Beginner, Solid, Advanced, Expert) is determined by your performance
+   - The profile is based on a rolling average of your recent drafts
+   - Visual charts show your progress over time
+   - Personalized tips help you improve specific areas
+
+4. **View Your Skills**
+   - Navigate to "Your Skills" from the dashboard to see your full skills profile
+   - Review specific scores and track your improvement over time

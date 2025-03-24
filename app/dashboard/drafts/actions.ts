@@ -106,7 +106,14 @@ export async function updateDraft(draftId: string, data: Partial<Draft>): Promis
  * Updates draft status
  */
 export async function updateDraftStatus(draftId: string, status: 'In Progress' | 'Feedback Ready'): Promise<Draft> {
-  return updateDraft(draftId, { status })
+  const updatedDraft = await updateDraft(draftId, { status })
+  
+  // If status is 'Feedback Ready', trigger the evaluation
+  if (status === 'Feedback Ready') {
+    await triggerEvaluation(draftId)
+  }
+  
+  return updatedDraft
 } 
 
 /**
@@ -130,4 +137,40 @@ export async function deleteDraft(draftId: string): Promise<void> {
  */
 export async function updateIdeas(draftId: string, ideas: Idea[]): Promise<Draft> {
   return updateDraft(draftId, { ideas })
+}
+
+/**
+ * Triggers the evaluation of a draft
+ */
+export async function triggerEvaluation(draftId: string): Promise<void> {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/evaluate-draft`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ draftId }),
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      console.error('Error evaluating draft:', errorData)
+    }
+  } catch (error) {
+    console.error('Error triggering evaluation:', error)
+  }
+}
+
+/**
+ * Saves a draft and triggers evaluation
+ */
+export async function saveDraftWithEvaluation(draftId: string, data: Partial<Draft>): Promise<Draft> {
+  const updatedDraft = await updateDraft(draftId, data)
+  
+  // If content is provided and not empty, trigger evaluation
+  if (data.content && data.content.trim().length > 0) {
+    await triggerEvaluation(draftId)
+  }
+  
+  return updatedDraft
 }

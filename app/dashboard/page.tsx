@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { SignOutForm } from "@/components/auth/sign-out-form";
 import Link from "next/link";
-import { FileText } from "lucide-react";
+import { FileText, BarChart2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const metadata = {
@@ -51,6 +51,22 @@ export default async function DashboardPage() {
           </p>
           <Link href="/dashboard/drafts">
             <Button className="w-full">View Drafts</Button>
+          </Link>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow dark:bg-gray-800">
+          <div className="flex items-center mb-4">
+            <BarChart2 className="h-6 w-6 mr-2 text-green-500" />
+            <h3 className="text-lg font-semibold">Your Skills</h3>
+          </div>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">
+            Track your writing skill development and see personalized
+            improvement tips.
+          </p>
+          <Link href="/dashboard/skills">
+            <Button className="w-full bg-green-600 hover:bg-green-700">
+              View Skills
+            </Button>
           </Link>
         </div>
       </div>

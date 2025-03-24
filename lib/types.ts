@@ -36,4 +36,35 @@ export interface Draft {
   status: 'In Progress' | 'Feedback Ready'
   created_at: string
   updated_at: string
-} 
+  evaluation?: SkillEvaluation
+}
+
+export interface SkillEvaluation {
+  scores: SkillScores
+  originality: {
+    isOriginal: boolean
+    matchPercentage?: number
+  }
+  timestamp: string
+}
+
+export interface SkillScores {
+  clarity: number
+  logic: number
+  expression: number
+  structure: number
+  grammar: number
+}
+
+export interface WriterProfile {
+  reasonerScore: number
+  polisherScore: number
+  level: WriterLevel
+  history: {
+    timestamp: string
+    reasonerScore: number
+    polisherScore: number
+  }[]
+}
+
+export type WriterLevel = 'Beginner' | 'Solid' | 'Advanced' | 'Expert' 

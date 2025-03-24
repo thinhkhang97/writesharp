@@ -5,7 +5,12 @@ import { Idea } from "@/lib/types";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { getDraftById, updateDraft, updateDraftStatus } from "../../actions";
+import {
+  getDraftById,
+  updateDraft,
+  updateDraftStatus,
+  saveDraftWithEvaluation,
+} from "../../actions";
 
 // Import components
 import DraftContent from "@/components/draft/DraftContent";
@@ -81,7 +86,7 @@ export default function DraftEditPage() {
     try {
       setIsSaving(true);
 
-      await updateDraft(id as string, {
+      const updatedDraft = await saveDraftWithEvaluation(id as string, {
         title,
         content,
         foundation: {
@@ -94,7 +99,7 @@ export default function DraftEditPage() {
       });
 
       setLastSaved(new Date());
-      toast.success("Draft saved successfully!");
+      toast.success("Draft saved and skills updated!");
     } catch (error) {
       console.error("Error saving draft:", error);
       toast.error("Failed to save draft");
