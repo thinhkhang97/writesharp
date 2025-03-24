@@ -195,11 +195,12 @@ html {
   backdrop-filter: var(--glass-backdrop);
   -webkit-backdrop-filter: var(--glass-backdrop);
   border: 1px solid var(--glass-border);
-  @apply shadow-glass;
+  box-shadow: var(--shadow-glass);
 }
 
 .glass-dark {
-  @apply bg-black/50 backdrop-blur-sm shadow-glass border border-white/10;
+  @apply bg-black/50 backdrop-blur-sm border border-white/10;
+  box-shadow: var(--shadow-glass);
 }
 
 /* Shadow utility classes */
@@ -228,7 +229,9 @@ html {
 }
 
 .glass-card {
-  @apply rounded-xl glass shadow-glass-lg border border-white/30 backdrop-blur-md;
+  @apply rounded-xl border border-white/30 backdrop-blur-md;
+  background: var(--glass-bg);
+  box-shadow: var(--shadow-glass-lg);
 }
 
 .glass-input {
@@ -242,5 +245,14 @@ html {
 }
 
 .page-transitions {
-  @apply animate-fade-in;
+  animation: fade-in 0.3s ease-in-out;
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }

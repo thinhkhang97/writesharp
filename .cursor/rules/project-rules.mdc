@@ -13,7 +13,7 @@ Rule 4: Use Supabase server client—lib/supabase.js for queries, pass props to 
 
 Rule 5: Keep Components Light: Cap components at ~50-100 lines—split if longer, focus on one job per component
 
-Rule 6: Prefer using Shadcn ui components, add more components if you need
+Rule 6: Prefer using Shadcn ui components, add more components if you need, refer gradient color, glass styles
 
 Rule 7: Don't create new icon svg if it's exist in lucide-react
 

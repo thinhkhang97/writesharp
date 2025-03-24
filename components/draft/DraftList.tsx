@@ -8,7 +8,7 @@ import { Edit, Trash2, Eye, AlertTriangle } from "lucide-react";
 import { Draft } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { deleteDraft } from "@/app/dashboard/drafts/actions";
+import { deleteDraft } from "@/app/drafts/actions";
 
 interface DraftListProps {
   initialDrafts: Draft[];

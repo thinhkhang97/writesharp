@@ -7,7 +7,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { createDraft } from "@/app/dashboard/drafts/actions";
+import { createDraft } from "@/app/drafts/actions";
 
 export interface DraftHeaderProps {
   userId: string;

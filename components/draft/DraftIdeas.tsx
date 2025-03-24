@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Idea } from "@/lib/types";
-import { updateIdeas } from "@/app/dashboard/drafts/actions";
+import { updateIdeas } from "@/app/drafts/actions";
 import {
   KeyboardSensor,
   PointerSensor,
