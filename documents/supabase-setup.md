@@ -58,7 +58,7 @@ The RLS policies are configured to allow both:
 1. Client-side operations where the authenticated user's ID must match the user_id field
 2. Server-side operations using the service role for server actions
 
-For server-side actions, we use Next.js server actions in the `app/dashboard/drafts/actions.ts` file. This ensures:
+For server-side actions, we use Next.js server actions in the `app/drafts/actions.ts` file. This ensures:
 
 1. Data validation happens on the server
 2. Security checks are properly enforced
@@ -75,9 +75,9 @@ The Draft Management system is integrated with the app through:
 
 1. Server-side functions and actions
    - API functions in `lib/draft-service.ts`
-   - Server actions in `app/dashboard/drafts/actions.ts`
+   - Server actions in `app/drafts/actions.ts`
 2. UI components in `components/draft/`
-3. Pages in `app/dashboard/drafts/`
+3. Pages in `app/drafts/`
 
 ## Testing
 

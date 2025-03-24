@@ -37,7 +37,7 @@ export async function createDraft(userId: string): Promise<Draft> {
   }
 
   // Revalidate drafts page
-  revalidatePath('/dashboard/drafts')
+  revalidatePath('/drafts')
   
   return data
 }

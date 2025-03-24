@@ -27,7 +27,7 @@ export default async function DraftDetailPage({
       <div className="container mx-auto py-8">
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/dashboard/drafts">
+            <Link href="/drafts">
               <Button
                 variant="ghost"
                 size="sm"
@@ -48,7 +48,7 @@ export default async function DraftDetailPage({
               {draft.status}
             </span>
           </div>
-          <Link href={`/dashboard/drafts/${draft.id}/edit`}>
+          <Link href={`/drafts/${draft.id}/edit`}>
             <Button className="flex items-center gap-2">
               <Edit className="h-4 w-4" />
               Edit Draft
@@ -107,6 +107,6 @@ export default async function DraftDetailPage({
     );
   } catch (error) {
     console.error("Error fetching draft:", error);
-    redirect("/dashboard/drafts");
+    redirect("/drafts");
   }
 }

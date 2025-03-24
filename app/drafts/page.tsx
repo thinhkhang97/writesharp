@@ -22,9 +22,11 @@ export default async function DraftsPage() {
   const drafts = await getDraftsByUserId(userId);
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 md:px-8 page-transitions">
       <DraftHeader userId={userId} />
-      <DraftList initialDrafts={drafts} userId={userId} />
+      <div className="bg-white/30 backdrop-blur-sm rounded-2xl p-6 shadow-glass">
+        <DraftList initialDrafts={drafts} userId={userId} />
+      </div>
     </div>
   );
 }

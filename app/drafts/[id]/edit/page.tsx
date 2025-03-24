@@ -48,7 +48,7 @@ export default function DraftEditPage() {
 
         if (!draftData) {
           toast.error("Draft not found");
-          router.push("/dashboard/drafts");
+          router.push("/drafts");
           return;
         }
 
@@ -73,7 +73,7 @@ export default function DraftEditPage() {
       } catch (error) {
         console.error("Error fetching draft:", error);
         toast.error("Failed to load draft");
-        router.push("/dashboard/drafts");
+        router.push("/drafts");
       } finally {
         setIsLoading(false);
       }

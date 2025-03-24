@@ -49,7 +49,7 @@ export default async function DashboardPage() {
           <p className="text-gray-600 dark:text-gray-400 mb-4">
             Manage all your writing drafts, ideas, and ongoing projects.
           </p>
-          <Link href="/dashboard/drafts">
+          <Link href="/drafts">
             <Button className="w-full">View Drafts</Button>
           </Link>
         </div>
@@ -63,7 +63,7 @@ export default async function DashboardPage() {
             Track your writing skill development and see personalized
             improvement tips.
           </p>
-          <Link href="/dashboard/skills">
+          <Link href="/skills">
             <Button className="w-full bg-green-600 hover:bg-green-700">
               View Skills
             </Button>
