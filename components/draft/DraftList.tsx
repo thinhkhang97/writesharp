@@ -3,12 +3,27 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Edit, Trash2, Eye, Clock, FileType } from "lucide-react";
+import {
+  Edit,
+  Trash2,
+  Eye,
+  Clock,
+  FileType,
+  MoreVertical,
+  FileText,
+} from "lucide-react";
 
 import { Draft } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { deleteDraft } from "@/app/drafts/actions";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface DraftListProps {
   initialDrafts: Draft[];
@@ -92,23 +107,24 @@ export default function DraftList({ initialDrafts }: DraftListProps) {
   }
 
   return (
-    <div className="grid gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {drafts.map((draft) => (
         <div
           key={draft.id}
-          className="glass rounded-xl p-5 transition-all duration-200 hover:shadow-glass-lg group"
+          className="glass rounded-xl overflow-hidden border border-white/30 transition-all duration-200 hover:shadow-md group relative h-[300px] flex flex-col"
         >
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <h3 className="text-lg font-medium text-gray-900 truncate">
-                  {draft.title}
-                </h3>
+          {/* Top header with title and actions */}
+          <div className="px-5 pt-4 pb-3 flex items-start justify-between border-b border-white/10">
+            <div className="flex-1 mr-2">
+              <h3 className="text-base font-semibold text-gray-900 line-clamp-2 tracking-tight mb-1 group-hover:text-blue-600 transition-colors duration-200">
+                {draft.title}
+              </h3>
+              <div className="flex items-center mt-1.5">
                 <span
-                  className={`px-2 py-1 text-xs leading-none font-medium rounded-full flex items-center gap-1 ${
+                  className={`px-2 py-0.5 text-xs leading-none font-medium rounded-full inline-flex items-center gap-1 ${
                     draft.status === "Feedback Ready"
-                      ? "bg-green-100 text-green-800"
-                      : "bg-yellow-100 text-yellow-800"
+                      ? "bg-green-100/90 text-green-800"
+                      : "bg-amber-100/90 text-amber-800"
                   }`}
                 >
                   {draft.status === "Feedback Ready"
@@ -116,76 +132,100 @@ export default function DraftList({ initialDrafts }: DraftListProps) {
                     : "In Progress"}
                 </span>
               </div>
-              <div className="mt-2 flex items-center text-sm text-gray-500">
-                <Clock className="h-3 w-3 mr-1" />
-                <span>Updated {formatDate(draft.updated_at)}</span>
-              </div>
-              {draft.content && (
-                <p className="mt-2 text-sm text-gray-700 line-clamp-2">
-                  {draft.content.slice(0, 150)}...
-                </p>
-              )}
             </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 text-gray-500 hover:text-gray-800 hover:bg-white/20 rounded-full"
+                >
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                  <Link
+                    href={`/drafts/${draft.id}`}
+                    className="cursor-pointer flex items-center"
+                  >
+                    <Eye className="mr-2 h-4 w-4" />
+                    <span>View Draft</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link
+                    href={`/drafts/${draft.id}/edit`}
+                    className="cursor-pointer flex items-center"
+                  >
+                    <Edit className="mr-2 h-4 w-4" />
+                    <span>Edit Draft</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                  onClick={() => handleDeleteDraft(draft.id)}
+                  disabled={isDeleting === draft.id}
+                >
+                  {isDeleting === draft.id ? (
+                    <span className="flex items-center">
+                      <svg
+                        className="animate-spin mr-2 h-4 w-4 text-red-600"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      <span>Deleting...</span>
+                    </span>
+                  ) : (
+                    <>
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      <span>Delete Draft</span>
+                    </>
+                  )}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
 
-            <div className="flex items-center space-x-3">
-              <Link href={`/drafts/${draft.id}`}>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex items-center gap-1 transition-colors duration-200 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200"
-                >
-                  <Eye className="h-3 w-3" />
-                  View
-                </Button>
-              </Link>
-              <Link href={`/drafts/${draft.id}/edit`}>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex items-center gap-1 transition-colors duration-200 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200"
-                >
-                  <Edit className="h-3 w-3" />
-                  Edit
-                </Button>
-              </Link>
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-1 text-red-600 hover:text-red-700 hover:bg-red-50 hover:border-red-200 transition-colors duration-200"
-                onClick={() => handleDeleteDraft(draft.id)}
-                disabled={isDeleting === draft.id}
-              >
-                {isDeleting === draft.id ? (
-                  <span className="flex items-center">
-                    <svg
-                      className="animate-spin -ml-1 mr-1 h-3 w-3 text-red-600"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    <span>Deleting...</span>
-                  </span>
-                ) : (
-                  <>
-                    <Trash2 className="h-3 w-3" />
-                    Delete
-                  </>
-                )}
-              </Button>
+          {/* Main content area */}
+          <div className="flex-1 p-5 flex flex-col overflow-hidden">
+            <Link
+              href={`/drafts/${draft.id}`}
+              className="flex-1 flex flex-col group cursor-pointer focus:outline-none"
+            >
+              {draft.content && (
+                <div className="relative flex-grow overflow-hidden">
+                  <p className="text-sm text-gray-700 leading-relaxed font-light">
+                    {draft.content.slice(0, 200)}...
+                  </p>
+                  <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white/80 to-transparent"></div>
+                </div>
+              )}
+            </Link>
+
+            <div className="mt-3 pt-3 border-t border-white/20">
+              <div className="flex items-center text-xs text-gray-600">
+                <Clock className="h-3 w-3 mr-1 flex-shrink-0" />
+                <span className="truncate font-medium">
+                  {formatDate(draft.updated_at)}
+                </span>
+              </div>
             </div>
           </div>
         </div>
