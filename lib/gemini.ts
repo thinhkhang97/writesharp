@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold, GenerationConfig } from '@google/generative-ai';
+import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold, GenerationConfig, SchemaType } from '@google/generative-ai';
 
 // Initialize the Gemini API client
 const getApiKey = () => {
@@ -53,6 +53,123 @@ export async function generateWithGemini(prompt: string, generationConfig?: Gene
     return response.text();
   } catch (error) {
     console.error('Error generating content with Gemini:', error);
+    throw error;
+  }
+}
+
+export interface WritingReviewFeedback {
+  score: number;
+  strengths: {
+    points: string[];
+    summary: string;
+  };
+  weaknesses: {
+    points: string[];
+    summary: string;
+  };
+}
+
+export async function generateWritingReview(
+  content: string,
+  foundation?: string,
+  ideas?: string
+): Promise<WritingReviewFeedback> {
+  try {
+    const prompt = `
+    Review the following piece of writing. Focus on the reasoning (logic flow) and expression (word impact, clarity).
+
+    ${foundation ? `FOUNDATION/CONTEXT:
+    ${foundation}` : ''}
+    
+    ${ideas ? `KEY IDEAS:
+    ${ideas}` : ''}
+    
+    CONTENT TO REVIEW:
+    ${content}
+    
+   
+    
+    INSTRUCTIONS:
+    Provide feedback
+    
+    IMPORTANT GUIDELINES:
+    1. Include 0-5 specific strengths with direct quotes from the text that align with the foundation and ideas provided
+    2. Include 0-5 specific weaknesses with direct quotes from the text
+    3. For each point, explain how it impacts reasoning (logic flow) or expression (word impact, clarity)
+    4. If foundation or ideas are provided, evaluate how well the content addresses these elements
+    5. Keep each point concise, short in 20 words or less and detailed enough to be helpful
+    6. Score the content between 0 and 100 based on the strength and weaknesses
+    `;
+
+    const model = getGeminiModel({
+      responseMimeType: "application/json",
+      responseSchema: {
+        description: "A JSON object with strengths and weaknesses",
+        type: SchemaType.OBJECT,
+        properties: {
+          score: {
+            type: SchemaType.INTEGER,
+            description: "Score between 0 and 100",
+          },
+          strengths: {
+            type: SchemaType.OBJECT,
+            properties: {
+              points: {
+                type: SchemaType.ARRAY,
+                items: {
+                  type: SchemaType.STRING,
+                  description: "Specific example of clear language with direct quote",
+                },
+              },
+              summary: {
+                type: SchemaType.STRING,
+                description: "1-2 sentence summary of key strengths",
+              },
+            },
+          },
+          weaknesses: {
+            type: SchemaType.OBJECT,
+            properties: {
+              points: {
+                type: SchemaType.ARRAY,
+                items: {
+                  type: SchemaType.STRING,
+                  description: "Specific example of unclear language with direct quote and suggestion",
+                },
+              },
+              summary: {
+                type: SchemaType.STRING,
+                description: "1-2 sentence summary of areas to improve",
+              },
+            },
+          },
+        },
+        required: ["score", "strengths", "weaknesses"],
+      },
+    });
+    const result = await model.generateContent(prompt);
+    const responseText = result.response.text();
+    
+    try {
+      return JSON.parse(responseText) as WritingReviewFeedback;
+    } catch (parseError) {
+      console.error('Error parsing Gemini response as JSON:', parseError);
+      
+      // Fallback response if parsing fails
+      return {
+        score: 0,
+        strengths: {
+          points: ["Could not generate specific feedback. Please try again."],
+          summary: "Error processing feedback."
+        },
+        weaknesses: {
+          points: ["Could not generate specific feedback. Please try again."],
+          summary: "Error processing feedback."
+        }
+      };
+    }
+  } catch (error) {
+    console.error('Error generating writing review with Gemini:', error);
     throw error;
   }
 }
