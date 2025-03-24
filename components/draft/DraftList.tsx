@@ -3,15 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import {
-  Edit,
-  Trash2,
-  Eye,
-  Clock,
-  FileType,
-  MoreVertical,
-  FileText,
-} from "lucide-react";
+import { Edit, Trash2, Eye, Clock, FileType, MoreVertical } from "lucide-react";
 
 import { Draft } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -138,40 +130,51 @@ export default function DraftList({ initialDrafts }: DraftListProps) {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-8 w-8 p-0 text-gray-500 hover:text-gray-800 hover:bg-white/20 rounded-full"
+                  className="h-8 w-8 p-0 text-gray-500 hover:text-blue-600 hover:bg-blue-50/30 rounded-full transition-colors duration-150"
                 >
                   <MoreVertical className="h-4 w-4" />
+                  <span className="sr-only">Open menu</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem asChild>
+              <DropdownMenuContent
+                align="end"
+                className="w-[180px] p-2 backdrop-blur-md bg-white/90 border border-white/40"
+                sideOffset={8}
+              >
+                <DropdownMenuItem
+                  asChild
+                  className="rounded-md text-sm font-medium text-gray-700 hover:text-blue-700 hover:bg-blue-50/70 focus:bg-blue-50/70 py-2"
+                >
                   <Link
                     href={`/drafts/${draft.id}`}
                     className="cursor-pointer flex items-center"
                   >
-                    <Eye className="mr-2 h-4 w-4" />
+                    <Eye className="mr-2.5 h-[15px] w-[15px]" />
                     <span>View Draft</span>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
+                <DropdownMenuItem
+                  asChild
+                  className="rounded-md text-sm font-medium text-gray-700 hover:text-blue-700 hover:bg-blue-50/70 focus:bg-blue-50/70 py-2"
+                >
                   <Link
                     href={`/drafts/${draft.id}/edit`}
                     className="cursor-pointer flex items-center"
                   >
-                    <Edit className="mr-2 h-4 w-4" />
+                    <Edit className="mr-2.5 h-[15px] w-[15px]" />
                     <span>Edit Draft</span>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
+                <DropdownMenuSeparator className="my-1.5 bg-gray-200/50" />
                 <DropdownMenuItem
-                  className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                  className="rounded-md text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50/70 focus:text-red-700 focus:bg-red-50/70 py-2"
                   onClick={() => handleDeleteDraft(draft.id)}
                   disabled={isDeleting === draft.id}
                 >
                   {isDeleting === draft.id ? (
                     <span className="flex items-center">
                       <svg
-                        className="animate-spin mr-2 h-4 w-4 text-red-600"
+                        className="animate-spin mr-2.5 h-[15px] w-[15px] text-red-600"
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
                         viewBox="0 0 24 24"
@@ -194,7 +197,7 @@ export default function DraftList({ initialDrafts }: DraftListProps) {
                     </span>
                   ) : (
                     <>
-                      <Trash2 className="mr-2 h-4 w-4" />
+                      <Trash2 className="mr-2.5 h-[15px] w-[15px]" />
                       <span>Delete Draft</span>
                     </>
                   )}
