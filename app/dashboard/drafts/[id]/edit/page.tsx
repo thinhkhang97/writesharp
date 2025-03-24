@@ -1,20 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
+import { Idea } from "@/lib/types";
+import { useParams, useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { getDraftById, updateDraft, updateDraftStatus } from "../../actions";
-import { Idea } from "@/lib/types";
 
 // Import components
-import { DraftEditHeader } from "@/components/draft/DraftHeader";
-import DraftStepBar from "@/components/draft/DraftStepBar";
-import DraftFoundation from "@/components/draft/DraftFoundation";
-import DraftIdeas from "@/components/draft/DraftIdeas";
 import DraftContent from "@/components/draft/DraftContent";
+import DraftFoundation from "@/components/draft/DraftFoundation";
+import { DraftEditHeader } from "@/components/draft/DraftHeader";
+import DraftIdeas from "@/components/draft/DraftIdeas";
 import DraftNavigation from "@/components/draft/DraftNavigation";
 import DraftSidebar from "@/components/draft/DraftSidebar";
+import DraftStepBar from "@/components/draft/DraftStepBar";
 
 export default function DraftEditPage() {
   const router = useRouter();
@@ -31,6 +31,8 @@ export default function DraftEditPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const saveTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Fetch draft data
   useEffect(() => {
@@ -60,6 +62,9 @@ export default function DraftEditPage() {
         if (draftData.ideas && Array.isArray(draftData.ideas)) {
           setIdeas(draftData.ideas);
         }
+
+        // Set last saved time to now since we just loaded the data
+        setLastSaved(new Date());
       } catch (error) {
         console.error("Error fetching draft:", error);
         toast.error("Failed to load draft");
@@ -88,6 +93,7 @@ export default function DraftEditPage() {
         status,
       });
 
+      setLastSaved(new Date());
       toast.success("Draft saved successfully!");
     } catch (error) {
       console.error("Error saving draft:", error);
@@ -97,12 +103,57 @@ export default function DraftEditPage() {
     }
   };
 
+  // Create debounced auto-save function using Lodash's debounce
+  const debouncedSave = useCallback(() => {
+    if (!id) return;
+
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current);
+    }
+    saveTimerRef.current = setTimeout(async () => {
+      try {
+        setIsSaving(true);
+        await updateDraft(id as string, {
+          title,
+          content,
+          foundation: {
+            purpose,
+            audience,
+            topic,
+          },
+          ideas,
+          status,
+        });
+        setLastSaved(new Date());
+        // Silent auto-save - no toast notification
+      } catch (error) {
+        console.error("Error auto-saving draft:", error);
+        // Only show error notifications, not success
+        toast.error("Failed to auto-save", { duration: 2000 });
+      } finally {
+        setIsSaving(false);
+      }
+    }, 1000);
+  }, [id, title, content, purpose, audience, topic, ideas, status]);
+
+  // Trigger auto-save when form values change
+  useEffect(() => {
+    // Start auto-save when content changes
+    debouncedSave();
+
+    // Clean up the debounce on unmount
+    return () => {
+      // The debounce function already handles cleanup internally
+    };
+  }, [title, content, purpose, audience, topic, ideas, status, debouncedSave]);
+
   const handleStatusChange = async (
     newStatus: "In Progress" | "Feedback Ready"
   ) => {
     try {
       setStatus(newStatus);
       await updateDraftStatus(id as string, newStatus);
+      setLastSaved(new Date());
       toast.success(`Draft status changed to ${newStatus}`);
     } catch (error) {
       console.error("Error updating status:", error);
@@ -130,6 +181,7 @@ export default function DraftEditPage() {
         title={title}
         onSave={handleSave}
         isSaving={isSaving}
+        lastSaved={lastSaved}
       />
 
       {/* Step Bar */}

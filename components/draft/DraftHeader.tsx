@@ -61,6 +61,7 @@ export interface DraftEditHeaderProps {
   title: string;
   onSave: () => void;
   isSaving: boolean;
+  lastSaved: Date | null;
 }
 
 export function DraftEditHeader({
@@ -68,6 +69,7 @@ export function DraftEditHeader({
   title,
   onSave,
   isSaving,
+  lastSaved,
 }: DraftEditHeaderProps) {
   return (
     <div className="mb-6 flex items-center justify-between">
@@ -80,14 +82,32 @@ export function DraftEditHeader({
         </Link>
         <h1 className="text-2xl font-semibold">Edit Draft: {title}</h1>
       </div>
-      <Button
-        onClick={onSave}
-        disabled={isSaving}
-        className="flex items-center gap-2"
-      >
-        <Save className="h-4 w-4" />
-        {isSaving ? "Saving..." : "Save Changes"}
-      </Button>
+      <div className="flex items-center gap-3">
+        {/* Last saved indicator */}
+        <div className="text-sm text-muted-foreground">
+          {lastSaved ? (
+            <span>
+              Last saved{" "}
+              {new Date(lastSaved).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </span>
+          ) : (
+            "Not saved yet"
+          )}
+        </div>
+
+        {/* Manual save button */}
+        <Button
+          onClick={onSave}
+          disabled={isSaving}
+          className="flex items-center gap-2"
+        >
+          <Save className="h-4 w-4" />
+          {isSaving ? "Saving..." : "Save Changes"}
+        </Button>
+      </div>
     </div>
   );
 }
