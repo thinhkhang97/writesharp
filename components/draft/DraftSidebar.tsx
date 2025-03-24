@@ -1,7 +1,6 @@
 "use client";
 
 import { Idea } from "@/lib/types";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Lightbulb } from "lucide-react";
 
 interface DraftSidebarProps {
@@ -15,7 +14,7 @@ interface DraftSidebarProps {
 
 export default function DraftSidebar({ foundation, ideas }: DraftSidebarProps) {
   return (
-    <div className="w-80 bg-slate-50 border-l border-slate-200 rounded-lg overflow-hidden h-[calc(100vh-16rem)] sticky top-24">
+    <div className="w-80 bg-slate-50 border-l border-slate-200 rounded-lg overflow-hidden sticky top-24">
       <div className="p-4 border-b border-slate-200">
         <h2 className="text-lg font-medium mb-2">Foundation</h2>
         <div className="space-y-2 text-sm">
@@ -59,29 +58,27 @@ export default function DraftSidebar({ foundation, ideas }: DraftSidebarProps) {
         <h2 className="text-lg font-medium mb-2">Ideas</h2>
       </div>
 
-      <ScrollArea className="h-[calc(100%-18rem)]">
-        <ul className="p-4 space-y-3">
-          {ideas.length > 0 ? (
-            ideas
-              .sort((a, b) => a.order - b.order)
-              .map((idea) => (
-                <li
-                  key={idea.order}
-                  className="bg-white p-3 rounded-md border shadow-sm"
-                >
-                  <p className="text-sm text-slate-700">{idea.text}</p>
-                  {idea.aiGuides && idea.aiGuides.length > 0 && (
-                    <div className="mt-2 pt-2 border-t border-slate-100 text-xs text-slate-500 italic">
-                      {idea.aiGuides[0].text}
-                    </div>
-                  )}
-                </li>
-              ))
-          ) : (
-            <p className="text-sm text-slate-500 italic">No ideas added yet</p>
-          )}
-        </ul>
-      </ScrollArea>
+      <ul className="p-4 space-y-3">
+        {ideas.length > 0 ? (
+          ideas
+            .sort((a, b) => a.order - b.order)
+            .map((idea) => (
+              <li
+                key={idea.order}
+                className="bg-white p-3 rounded-md border shadow-sm"
+              >
+                <p className="text-sm text-slate-700">{idea.text}</p>
+                {idea.aiGuides && idea.aiGuides.length > 0 && (
+                  <div className="mt-2 pt-2 border-t border-slate-100 text-xs text-slate-500 italic">
+                    {idea.aiGuides[0].text}
+                  </div>
+                )}
+              </li>
+            ))
+        ) : (
+          <p className="text-sm text-slate-500 italic">No ideas added yet</p>
+        )}
+      </ul>
     </div>
   );
 }

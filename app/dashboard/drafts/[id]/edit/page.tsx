@@ -89,7 +89,6 @@ export default function DraftEditPage() {
       });
 
       toast.success("Draft saved successfully!");
-      router.push(`/dashboard/drafts/${id}`);
     } catch (error) {
       console.error("Error saving draft:", error);
       toast.error("Failed to save draft");
